@@ -1,26 +1,185 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Search, Leaf } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { MapView } from "@/components/mellow/MapView";
+import { PlaceCard } from "@/components/mellow/PlaceCard";
+import { ReviewDialog } from "@/components/mellow/ReviewDialog";
+import type { Place, Review } from "@/lib/types";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Discover · Mellow Belly" },
+      {
+        name: "description",
+        content:
+          "All the yum, none of the bloat — find dairy-free spots across San Francisco.",
+      },
+    ],
+  }),
+  component: Discover,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+function Discover() {
+  const [q, setQ] = useState("");
+  const [neighborhood, setNeighborhood] = useState("all");
+  const [type, setType] = useState("all");
+  const [veganOnly, setVeganOnly] = useState(false);
+  const [picked, setPicked] = useState<Place | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const { data: places = [] } = useQuery({
+    queryKey: ["places"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("places")
+        .select("*")
+        .order("name");
+      if (error) throw error;
+      return data as Place[];
+    },
+  });
+
+  const { data: reviews = [] } = useQuery({
+    queryKey: ["reviews"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Review[];
+    },
+  });
+
+  const neighborhoods = useMemo(
+    () => Array.from(new Set(places.map((p) => p.neighborhood))).sort(),
+    [places],
+  );
+  const types = useMemo(
+    () => Array.from(new Set(places.map((p) => p.type))).sort(),
+    [places],
+  );
+
+  const filtered = useMemo(() => {
+    return places.filter((p) => {
+      if (veganOnly && !p.is_totally_vegan) return false;
+      if (neighborhood !== "all" && p.neighborhood !== neighborhood) return false;
+      if (type !== "all" && p.type !== type) return false;
+      if (q) {
+        const s = q.toLowerCase();
+        if (
+          !p.name.toLowerCase().includes(s) &&
+          !p.neighborhood.toLowerCase().includes(s) &&
+          !p.type.toLowerCase().includes(s)
+        )
+          return false;
+      }
+      return true;
+    });
+  }, [places, q, neighborhood, type, veganOnly]);
+
+  const onPick = (p: Place) => {
+    setPicked(p);
+    setOpen(true);
+  };
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="mx-auto max-w-2xl px-4 pt-8">
+      <header className="mb-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+          Mellow Belly
+        </p>
+        <h1 className="text-4xl font-bold mt-1">All the yum,</h1>
+        <h1 className="text-4xl font-bold text-primary -mt-1">
+          none of the bloat.
+        </h1>
+        <p className="text-muted-foreground mt-3 text-sm">
+          Your dairy-free dining guide for San Francisco.
+        </p>
+      </header>
+
+      <div className="mb-4">
+        <MapView places={filtered} onPick={onPick} />
+      </div>
+
+      <div className="space-y-3 sticky top-0 z-30 bg-background/85 backdrop-blur py-3 -mx-4 px-4 border-b border-border/60">
+        <div className="relative">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search spots, neighborhoods, food..."
+            className="pl-9 rounded-full bg-card"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2 items-center">
+          <Select value={neighborhood} onValueChange={setNeighborhood}>
+            <SelectTrigger className="rounded-full h-9 w-auto px-4 bg-card">
+              <SelectValue placeholder="Neighborhood" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All neighborhoods</SelectItem>
+              {neighborhoods.map((n) => (
+                <SelectItem key={n} value={n}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={type} onValueChange={setType}>
+            <SelectTrigger className="rounded-full h-9 w-auto px-4 bg-card">
+              <SelectValue placeholder="Food type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All food types</SelectItem>
+              {types.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="flex items-center gap-2 ml-auto rounded-full bg-card border border-border px-3 h-9">
+            <Leaf size={14} className="text-vegan-foreground" />
+            <Label htmlFor="vegan" className="text-xs cursor-pointer">
+              Vegan only
+            </Label>
+            <Switch id="vegan" checked={veganOnly} onCheckedChange={setVeganOnly} />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3 mt-4">
+        <p className="text-xs text-muted-foreground">
+          {filtered.length} spot{filtered.length === 1 ? "" : "s"}
+        </p>
+        {filtered.map((p) => (
+          <PlaceCard key={p.id} place={p} reviews={reviews} onAdd={onPick} />
+        ))}
+        {filtered.length === 0 && (
+          <div className="rounded-3xl bg-card p-10 text-center text-muted-foreground">
+            No spots match — try loosening your filters.
+          </div>
+        )}
+      </div>
+
+      <ReviewDialog open={open} onOpenChange={setOpen} place={picked} />
     </div>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
