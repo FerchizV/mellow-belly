@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Leaf } from "lucide-react";
+import { Search, Leaf, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -16,6 +16,8 @@ import {
 import { MapView } from "@/components/mellow/MapView";
 import { PlaceCard } from "@/components/mellow/PlaceCard";
 import { ReviewDialog } from "@/components/mellow/ReviewDialog";
+import { AddPlaceDialog } from "@/components/mellow/AddPlaceDialog";
+import { Button } from "@/components/ui/button";
 import type { Place, Review } from "@/lib/types";
 
 export const Route = createFileRoute("/")({
@@ -39,6 +41,7 @@ function Discover() {
   const [veganOnly, setVeganOnly] = useState(false);
   const [picked, setPicked] = useState<Place | null>(null);
   const [open, setOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
 
   const { data: places = [] } = useQuery({
     queryKey: ["places"],
@@ -99,16 +102,27 @@ function Discover() {
   return (
     <div className="mx-auto max-w-2xl px-4 pt-8">
       <header className="mb-6">
-        <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
-          Mellow Belly
-        </p>
-        <h1 className="text-4xl font-bold mt-1">All the yum,</h1>
-        <h1 className="text-4xl font-bold text-primary -mt-1">
-          none of the bloat.
-        </h1>
-        <p className="text-muted-foreground mt-3 text-sm">
-          Your dairy-free dining guide for San Francisco.
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
+              Mellow Belly
+            </p>
+            <h1 className="text-4xl font-bold mt-1">All the yum,</h1>
+            <h1 className="text-4xl font-bold text-primary -mt-1">
+              none of the bloat.
+            </h1>
+            <p className="text-muted-foreground mt-3 text-sm">
+              Your dairy-free dining guide for San Francisco.
+            </p>
+          </div>
+          <Button
+            onClick={() => setAddOpen(true)}
+            className="rounded-full shadow-sm shrink-0"
+            size="sm"
+          >
+            <Plus className="mr-1" size={16} /> Add spot
+          </Button>
+        </div>
       </header>
 
       <div className="mb-4">
@@ -180,6 +194,11 @@ function Discover() {
       </div>
 
       <ReviewDialog open={open} onOpenChange={setOpen} place={picked} />
+      <AddPlaceDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        neighborhoods={neighborhoods}
+      />
     </div>
   );
 }
