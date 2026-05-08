@@ -28,7 +28,7 @@ export function MapView({
     );
   }
 
-  const { MapContainer, TileLayer, Marker, Popup } = mod.rl;
+  const { MapContainer, TileLayer, Marker } = mod.rl;
   const L = mod.L;
 
   return (
@@ -56,12 +56,7 @@ export function MapView({
               position={[p.lat, p.lng]}
               icon={icon}
               eventHandlers={{ click: () => onPick(p) }}
-            >
-              <Popup>
-                <div className="font-semibold">{p.name}</div>
-                <div className="text-xs opacity-70">{p.neighborhood}</div>
-              </Popup>
-            </Marker>
+            />
           );
         })}
       </MapContainer>

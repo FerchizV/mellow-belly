@@ -17,6 +17,7 @@ import { MapView } from "@/components/mellow/MapView";
 import { PlaceCard } from "@/components/mellow/PlaceCard";
 import { ReviewDialog } from "@/components/mellow/ReviewDialog";
 import { AddPlaceDialog } from "@/components/mellow/AddPlaceDialog";
+import { PlacePreview } from "@/components/mellow/PlacePreview";
 import { Button } from "@/components/ui/button";
 import type { Place, Review } from "@/lib/types";
 
@@ -42,6 +43,7 @@ function Discover() {
   const [picked, setPicked] = useState<Place | null>(null);
   const [open, setOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const { data: places = [] } = useQuery({
     queryKey: ["places"],
@@ -96,6 +98,12 @@ function Discover() {
 
   const onPick = (p: Place) => {
     setPicked(p);
+    setPreviewOpen(true);
+  };
+
+  const onLogVisit = (p: Place) => {
+    setPicked(p);
+    setPreviewOpen(false);
     setOpen(true);
   };
 
@@ -125,7 +133,7 @@ function Discover() {
         </div>
       </header>
 
-      {!(open || addOpen) && (
+      {!(open || addOpen || previewOpen) && (
         <div className="mb-4">
           <MapView places={filtered} onPick={onPick} />
         </div>
@@ -196,6 +204,13 @@ function Discover() {
       </div>
 
       <ReviewDialog open={open} onOpenChange={setOpen} place={picked} />
+      <PlacePreview
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        place={picked}
+        reviews={reviews}
+        onLogVisit={onLogVisit}
+      />
       <AddPlaceDialog
         open={addOpen}
         onOpenChange={setAddOpen}
