@@ -44,6 +44,8 @@ function Discover() {
   const [open, setOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [neighborhoodOpen, setNeighborhoodOpen] = useState(false);
+  const [typeOpen, setTypeOpen] = useState(false);
 
   const { data: places = [] } = useQuery({
     queryKey: ["places"],
@@ -133,7 +135,7 @@ function Discover() {
         </div>
       </header>
 
-      {!(open || addOpen || previewOpen) && (
+      {!(open || addOpen || previewOpen || neighborhoodOpen || typeOpen) && (
         <div className="mb-4">
           <MapView places={filtered} onPick={onPick} />
         </div>
@@ -153,7 +155,12 @@ function Discover() {
           />
         </div>
         <div className="flex flex-wrap gap-2 items-center">
-          <Select value={neighborhood} onValueChange={setNeighborhood}>
+          <Select
+            value={neighborhood}
+            onValueChange={setNeighborhood}
+            open={neighborhoodOpen}
+            onOpenChange={setNeighborhoodOpen}
+          >
             <SelectTrigger className="rounded-full h-9 w-auto px-4 bg-card">
               <SelectValue placeholder="Neighborhood" />
             </SelectTrigger>
@@ -166,7 +173,12 @@ function Discover() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={type} onValueChange={setType}>
+          <Select
+            value={type}
+            onValueChange={setType}
+            open={typeOpen}
+            onOpenChange={setTypeOpen}
+          >
             <SelectTrigger className="rounded-full h-9 w-auto px-4 bg-card">
               <SelectValue placeholder="Food type" />
             </SelectTrigger>
