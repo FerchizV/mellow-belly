@@ -125,9 +125,11 @@ function Discover() {
         </div>
       </header>
 
-      <div className="mb-4">
-        <MapView places={filtered} onPick={onPick} />
-      </div>
+      {!(open || addOpen) && (
+        <div className="mb-4">
+          <MapView places={filtered} onPick={onPick} />
+        </div>
+      )}
 
       <div className="space-y-3 sticky top-0 z-30 bg-background/85 backdrop-blur py-3 -mx-4 px-4 border-b border-border/60">
         <div className="relative">
