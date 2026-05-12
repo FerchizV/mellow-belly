@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Trash2, BookHeart } from "lucide-react";
+import { Pencil, Trash2, BookHeart, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,7 @@ import { ReviewDialog } from "@/components/mellow/ReviewDialog";
 import type { Place, Review } from "@/lib/types";
 import { COMFORT_FACES, COMFORT_LABELS } from "@/lib/types";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/diary")({
   head: () => ({
@@ -39,6 +40,7 @@ function Diary() {
   const [editPlace, setEditPlace] = useState<Place | null>(null);
   const [open, setOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<Review | null>(null);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const { data: reviews = [] } = useQuery({
     queryKey: ["reviews"],
@@ -65,6 +67,29 @@ function Diary() {
     () => Object.fromEntries(places.map((p) => [p.id, p])),
     [places],
   );
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, Review[]>();
+    for (const r of reviews) {
+      if (!map.has(r.place_id)) map.set(r.place_id, []);
+      map.get(r.place_id)!.push(r);
+    }
+    // sort each group's reviews by date desc (already ordered, but be safe)
+    const groups = Array.from(map.entries()).map(([placeId, list]) => {
+      const sorted = [...list].sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
+      return { placeId, reviews: sorted };
+    });
+    // sort groups by most recent visit desc
+    groups.sort(
+      (a, b) =>
+        new Date(b.reviews[0].created_at).getTime() -
+        new Date(a.reviews[0].created_at).getTime(),
+    );
+    return groups;
+  }, [reviews]);
 
   const onEdit = (r: Review) => {
     setEditing(r);
@@ -95,11 +120,12 @@ function Diary() {
         </p>
         <h1 className="text-4xl font-bold mt-1">Every bite, remembered.</h1>
         <p className="text-muted-foreground mt-3 text-sm">
-          {reviews.length} entr{reviews.length === 1 ? "y" : "ies"}
+          {grouped.length} spot{grouped.length === 1 ? "" : "s"} ·{" "}
+          {reviews.length} bite{reviews.length === 1 ? "" : "s"}
         </p>
       </header>
 
-      {reviews.length === 0 ? (
+      {grouped.length === 0 ? (
         <div className="rounded-3xl bg-card border border-border p-12 text-center">
           <BookHeart className="mx-auto mb-3 text-primary" size={36} />
           <p className="font-medium">No bites yet.</p>
@@ -109,66 +135,127 @@ function Diary() {
         </div>
       ) : (
         <div className="space-y-3">
-          {reviews.map((r) => {
-            const place = placeMap[r.place_id];
+          {grouped.map(({ placeId, reviews: visits }) => {
+            const place = placeMap[placeId];
+            const avgFlavor =
+              visits.reduce((s, r) => s + r.flavor_rating, 0) / visits.length;
+            const latestComfort = visits[0].comfort_score;
+            const items = Array.from(
+              new Set(visits.map((v) => v.item_ordered)),
+            );
+            const isOpen = !!expanded[placeId];
+
             return (
               <article
-                key={r.id}
-                className="rounded-3xl bg-card border border-border p-5"
+                key={placeId}
+                className="rounded-3xl bg-card border border-border overflow-hidden"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-lg">
-                      {r.item_ordered}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {place?.name ?? "Unknown spot"}
-                      {place && ` · ${place.neighborhood}`}
-                    </p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setExpanded((e) => ({ ...e, [placeId]: !e[placeId] }))
+                  }
+                  className="w-full text-left p-5 hover:bg-accent/30 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-lg leading-tight">
+                        {place?.name ?? "Unknown spot"}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {place?.neighborhood ?? "—"} · {visits.length} visit
+                        {visits.length === 1 ? "" : "s"}
+                      </p>
+                    </div>
+                    <ChevronDown
+                      size={20}
+                      className={cn(
+                        "shrink-0 text-muted-foreground transition-transform",
+                        isOpen && "rotate-180",
+                      )}
+                    />
                   </div>
-                  <div className="flex gap-1 shrink-0">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="rounded-full"
-                      onClick={() => onEdit(r)}
-                    >
-                      <Pencil size={16} />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="rounded-full text-destructive hover:text-destructive"
-                      onClick={() => setConfirmDelete(r)}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
-                </div>
 
-                <div className="mt-3 flex items-center gap-4 flex-wrap">
-                  <Stars value={r.flavor_rating} readOnly size={16} />
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <span className="text-xl">
-                      {COMFORT_FACES[r.comfort_score - 1]}
-                    </span>
-                    <span className="text-muted-foreground">
-                      {COMFORT_LABELS[r.comfort_score - 1]}
-                    </span>
-                  </div>
-                  <span className="text-xs text-muted-foreground ml-auto">
-                    {new Date(r.created_at).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-
-                {r.notes && (
-                  <p className="mt-3 text-sm text-foreground/80 italic">
-                    "{r.notes}"
+                  <p className="mt-3 text-sm text-foreground/80">
+                    <span className="text-muted-foreground">Ordered: </span>
+                    {items.join(", ")}
                   </p>
+
+                  <div className="mt-3 flex items-center gap-4 flex-wrap">
+                    <Stars value={Math.round(avgFlavor)} readOnly size={16} />
+                    <span className="text-xs text-muted-foreground">
+                      avg {avgFlavor.toFixed(1)}
+                    </span>
+                    <div className="flex items-center gap-1.5 text-sm ml-auto">
+                      <span className="text-xl">
+                        {COMFORT_FACES[latestComfort - 1]}
+                      </span>
+                      <span className="text-muted-foreground text-xs">
+                        latest · {COMFORT_LABELS[latestComfort - 1]}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+
+                {isOpen && (
+                  <div className="border-t border-border bg-background/40 px-5 py-4 space-y-3">
+                    {visits.map((r) => (
+                      <div
+                        key={r.id}
+                        className="rounded-2xl bg-card border border-border p-4"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="font-medium">{r.item_ordered}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {new Date(r.created_at).toLocaleDateString(
+                                undefined,
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                },
+                              )}
+                            </p>
+                          </div>
+                          <div className="flex gap-1 shrink-0">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="rounded-full h-8 w-8"
+                              onClick={() => onEdit(r)}
+                            >
+                              <Pencil size={14} />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="rounded-full h-8 w-8 text-destructive hover:text-destructive"
+                              onClick={() => setConfirmDelete(r)}
+                            >
+                              <Trash2 size={14} />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="mt-2 flex items-center gap-3 flex-wrap">
+                          <Stars value={r.flavor_rating} readOnly size={14} />
+                          <div className="flex items-center gap-1 text-xs">
+                            <span className="text-base">
+                              {COMFORT_FACES[r.comfort_score - 1]}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {COMFORT_LABELS[r.comfort_score - 1]}
+                            </span>
+                          </div>
+                        </div>
+                        {r.notes && (
+                          <p className="mt-2 text-sm text-foreground/80 italic">
+                            "{r.notes}"
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </article>
             );
