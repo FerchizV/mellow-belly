@@ -103,6 +103,11 @@ export function PlacePreview({
               No visits yet — your belly is curious.
             </p>
           ) : (
+            <>
+            <p className="text-sm text-foreground/80 mb-3">
+              <span className="text-muted-foreground">Ordered: </span>
+              {Array.from(new Set(mine.map((r) => r.item_ordered))).join(", ")}
+            </p>
             <ul className="space-y-1.5">
               {mine.slice(0, 6).map((r) => (
                 <li
@@ -111,6 +116,9 @@ export function PlacePreview({
                 >
                   <span>{COMFORT_FACES[r.comfort_score - 1]}</span>
                   <span className="font-medium truncate">{r.item_ordered}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {new Date(r.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  </span>
                   <span className="text-xs text-muted-foreground ml-auto shrink-0">
                     ★ {r.flavor_rating}
                   </span>
@@ -122,6 +130,7 @@ export function PlacePreview({
                 </li>
               )}
             </ul>
+            </>
           )}
         </div>
 
