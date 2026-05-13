@@ -18,6 +18,7 @@ import { PlaceCard } from "@/components/mellow/PlaceCard";
 import { ReviewDialog } from "@/components/mellow/ReviewDialog";
 import { AddPlaceDialog } from "@/components/mellow/AddPlaceDialog";
 import { PlacePreview } from "@/components/mellow/PlacePreview";
+import { SplashScreen } from "@/components/mellow/SplashScreen";
 import { Button } from "@/components/ui/button";
 import type { Place, Review } from "@/lib/types";
 
@@ -46,8 +47,12 @@ function Discover() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [neighborhoodOpen, setNeighborhoodOpen] = useState(false);
   const [typeOpen, setTypeOpen] = useState(false);
+  const [splashDone, setSplashDone] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return sessionStorage.getItem("mellow-splash-shown") === "1";
+  });
 
-  const { data: places = [] } = useQuery({
+  const { data: places = [], isSuccess: placesLoaded } = useQuery({
     queryKey: ["places"],
     queryFn: async () => {
       const { data, error } = await supabase
