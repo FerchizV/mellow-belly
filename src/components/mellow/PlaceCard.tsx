@@ -52,14 +52,8 @@ export function PlaceCard({
       </div>
 
       <div className="mt-4 flex items-center gap-4 text-sm">
-        <div className="flex items-center gap-1">
-          <span className="text-primary">★</span>
-          <span className="font-medium">{place.google_rating?.toFixed(1) ?? "—"}</span>
-          <span className="text-xs text-muted-foreground">Google</span>
-        </div>
         {visited ? (
           <>
-            <div className="h-4 w-px bg-border" />
             <div className="flex items-center gap-1">
               <span className="text-primary">★</span>
               <span className="font-medium">{avgFlavor.toFixed(1)}</span>
@@ -73,7 +67,9 @@ export function PlaceCard({
               {mine.length} bite{mine.length === 1 ? "" : "s"}
             </span>
           </>
-        ) : null}
+        ) : (
+          <span className="text-xs text-muted-foreground">No bites yet</span>
+        )}
       </div>
     </div>
   );
