@@ -244,5 +244,6 @@ function Discover() {
         neighborhoods={neighborhoods}
       />
     </div>
+    </>
   );
 }
