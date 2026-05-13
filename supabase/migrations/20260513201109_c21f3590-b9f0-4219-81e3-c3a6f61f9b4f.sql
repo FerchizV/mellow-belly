@@ -1,0 +1,1 @@
+ALTER TABLE public.places DROP COLUMN IF EXISTS google_rating;
