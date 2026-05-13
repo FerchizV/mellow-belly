@@ -115,6 +115,16 @@ function Discover() {
   };
 
   return (
+    <>
+      {!splashDone && (
+        <SplashScreen
+          ready={placesLoaded}
+          onDone={() => {
+            sessionStorage.setItem("mellow-splash-shown", "1");
+            setSplashDone(true);
+          }}
+        />
+      )}
     <div className="mx-auto max-w-2xl px-4 pt-8">
       <header className="mb-6">
         <div className="flex items-start justify-between gap-3">
