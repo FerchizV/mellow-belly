@@ -50,33 +50,57 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           comfort_score: number
           created_at: string
           flavor_rating: number
           id: string
+          is_public: boolean
           item_ordered: string
           notes: string | null
           place_id: string
+          user_id: string | null
         }
         Insert: {
           comfort_score: number
           created_at?: string
           flavor_rating: number
           id?: string
+          is_public?: boolean
           item_ordered: string
           notes?: string | null
           place_id: string
+          user_id?: string | null
         }
         Update: {
           comfort_score?: number
           created_at?: string
           flavor_rating?: number
           id?: string
+          is_public?: boolean
           item_ordered?: string
           notes?: string | null
           place_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -90,7 +114,50 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      reviews_feed: {
+        Row: {
+          comfort_score: number | null
+          created_at: string | null
+          flavor_rating: number | null
+          id: string | null
+          is_public: boolean | null
+          item_ordered: string | null
+          notes: string | null
+          place_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          comfort_score?: number | null
+          created_at?: string | null
+          flavor_rating?: number | null
+          id?: string | null
+          is_public?: boolean | null
+          item_ordered?: string | null
+          notes?: never
+          place_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          comfort_score?: number | null
+          created_at?: string | null
+          flavor_rating?: number | null
+          id?: string | null
+          is_public?: boolean | null
+          item_ordered?: string | null
+          notes?: never
+          place_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
