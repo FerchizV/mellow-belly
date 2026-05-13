@@ -81,6 +81,7 @@ export function ReviewDialog({
     }
     toast.success(existing ? "Diary entry updated" : "Added to your diary");
     qc.invalidateQueries({ queryKey: ["reviews"] });
+    qc.invalidateQueries({ queryKey: ["my-reviews", user.id] });
     onOpenChange(false);
   };
 
