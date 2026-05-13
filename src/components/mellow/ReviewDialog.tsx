@@ -11,11 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Stars, ComfortPicker } from "./Stars";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Place, Review } from "@/lib/types";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/use-auth";
+import { Link } from "@tanstack/react-router";
 
 export function ReviewDialog({
   open,
@@ -29,10 +32,12 @@ export function ReviewDialog({
   existing?: Review | null;
 }) {
   const qc = useQueryClient();
+  const { user } = useAuth();
   const [item, setItem] = useState("");
   const [flavor, setFlavor] = useState(4);
   const [comfort, setComfort] = useState(4);
   const [notes, setNotes] = useState("");
+  const [isPublic, setIsPublic] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -41,12 +46,17 @@ export function ReviewDialog({
       setFlavor(existing?.flavor_rating ?? 4);
       setComfort(existing?.comfort_score ?? 4);
       setNotes(existing?.notes ?? "");
+      setIsPublic(existing?.is_public ?? false);
     }
   }, [open, existing]);
 
   if (!place) return null;
 
   const save = async () => {
+    if (!user) {
+      toast.error("Please sign in to log a bite");
+      return;
+    }
     if (!item.trim()) {
       toast.error("What did you order?");
       return;
@@ -58,6 +68,8 @@ export function ReviewDialog({
       flavor_rating: flavor,
       comfort_score: comfort,
       notes: notes.trim() || null,
+      is_public: isPublic,
+      user_id: user.id,
     };
     const res = existing
       ? await supabase.from("reviews").update(payload).eq("id", existing.id)
@@ -111,14 +123,41 @@ export function ReviewDialog({
               className="rounded-xl"
               rows={3}
             />
+            <div className="flex items-center justify-between rounded-2xl bg-secondary/60 px-4 py-3 mt-2">
+              <div>
+                <Label htmlFor="public-toggle" className="cursor-pointer">
+                  Make notes public
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Off by default — only you see your notes.
+                </p>
+              </div>
+              <Switch
+                id="public-toggle"
+                checked={isPublic}
+                onCheckedChange={setIsPublic}
+              />
+            </div>
           </div>
         </div>
 
         <DialogFooter>
+          {!user && (
+            <Link
+              to="/login"
+              className="text-sm text-primary hover:underline mr-auto self-center"
+            >
+              Sign in to log
+            </Link>
+          )}
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={save} disabled={saving} className="rounded-full">
+          <Button
+            onClick={save}
+            disabled={saving || !user}
+            className="rounded-full"
+          >
             {saving ? "Saving..." : existing ? "Save changes" : "Save bite"}
           </Button>
         </DialogFooter>
