@@ -114,53 +114,23 @@ export type Database = {
       }
     }
     Views: {
-      reviews_feed: {
-        Row: {
-          comfort_score: number | null
-          created_at: string | null
-          flavor_rating: number | null
-          id: string | null
-          is_public: boolean | null
-          item_ordered: string | null
-          notes: string | null
-          place_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          comfort_score?: number | null
-          created_at?: string | null
-          flavor_rating?: number | null
-          id?: string | null
-          is_public?: boolean | null
-          item_ordered?: string | null
-          notes?: never
-          place_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          comfort_score?: number | null
-          created_at?: string | null
-          flavor_rating?: number | null
-          id?: string | null
-          is_public?: boolean | null
-          item_ordered?: string | null
-          notes?: never
-          place_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reviews_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "places"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_reviews_feed: {
+        Args: never
+        Returns: {
+          comfort_score: number
+          created_at: string
+          flavor_rating: number
+          id: string
+          is_public: boolean
+          item_ordered: string
+          notes: string
+          place_id: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
