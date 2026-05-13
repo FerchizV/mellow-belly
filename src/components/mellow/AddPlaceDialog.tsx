@@ -42,7 +42,6 @@ const schema = z.object({
   neighborhood: z.string().trim().min(1, "Pick a neighborhood").max(80),
   type: z.enum(PLACE_TYPES),
   is_totally_vegan: z.boolean(),
-  google_rating: z.number().min(0).max(5),
 });
 
 async function geocode(address: string): Promise<{ lat: number; lng: number } | null> {
@@ -77,7 +76,6 @@ export function AddPlaceDialog({
   const [customNeighborhood, setCustomNeighborhood] = useState("");
   const [type, setType] = useState<(typeof PLACE_TYPES)[number]>("Café");
   const [vegan, setVegan] = useState(false);
-  const [rating, setRating] = useState("");
   const [saving, setSaving] = useState(false);
 
   const neighborhoodOptions = useMemo(
@@ -92,21 +90,18 @@ export function AddPlaceDialog({
     setCustomNeighborhood("");
     setType("Café");
     setVegan(false);
-    setRating("");
   };
 
   const submit = async () => {
     const finalNeighborhood =
       neighborhood === "__other__" ? customNeighborhood.trim() : neighborhood;
 
-    const ratingNum = rating.trim() === "" ? 0 : parseFloat(rating);
     const parsed = schema.safeParse({
       name,
       address,
       neighborhood: finalNeighborhood,
       type,
       is_totally_vegan: vegan,
-      google_rating: isNaN(ratingNum) ? -1 : ratingNum,
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0]?.message ?? "Please check the form");
@@ -131,7 +126,6 @@ export function AddPlaceDialog({
         neighborhood: parsed.data.neighborhood,
         type: parsed.data.type,
         is_totally_vegan: parsed.data.is_totally_vegan,
-        google_rating: parsed.data.google_rating,
         lat: coords.lat,
         lng: coords.lng,
       })
@@ -249,23 +243,6 @@ export function AddPlaceDialog({
               checked={vegan}
               onCheckedChange={setVegan}
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Google rating (optional)</Label>
-            <Input
-              type="number"
-              step="0.1"
-              min="0"
-              max="5"
-              value={rating}
-              onChange={(e) => setRating(e.target.value)}
-              placeholder="e.g. 4.5"
-              className="rounded-xl"
-            />
-            <p className="text-xs text-muted-foreground">
-              Leave blank to set 0.0 — you can edit it later from the place card.
-            </p>
           </div>
         </div>
 
