@@ -9,6 +9,10 @@ import {
 import { Button } from "@/components/ui/button";
 import type { Place, Review } from "@/lib/types";
 import { COMFORT_FACES } from "@/lib/types";
+import { useAuth } from "@/hooks/use-auth";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useMemo } from "react";
 
 export function PlacePreview({
   open,
@@ -23,15 +27,55 @@ export function PlacePreview({
   reviews: Review[];
   onLogVisit: (p: Place) => void;
 }) {
+  const { user } = useAuth();
+
+  const placeReviews = useMemo(
+    () => (place ? reviews.filter((r) => r.place_id === place.id) : []),
+    [reviews, place],
+  );
+
+  const userIds = useMemo(
+    () => Array.from(new Set(placeReviews.map((r) => r.user_id).filter(Boolean) as string[])),
+    [placeReviews],
+  );
+
+  const { data: profileMap = {} } = useQuery({
+    queryKey: ["profiles", userIds.sort().join(",")],
+    enabled: userIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, display_name")
+        .in("id", userIds);
+      if (error) throw error;
+      return Object.fromEntries(
+        (data ?? []).map((p) => [p.id, p.display_name]),
+      ) as Record<string, string>;
+    },
+  });
+
   if (!place) return null;
-  const mine = reviews.filter((r) => r.place_id === place.id);
+
+  const mine = user ? placeReviews.filter((r) => r.user_id === user.id) : [];
+  const others = user
+    ? placeReviews.filter((r) => r.user_id !== user.id)
+    : placeReviews;
+
   const avgFlavor =
     mine.reduce((s, r) => s + r.flavor_rating, 0) / (mine.length || 1);
   const avgComfort =
     mine.reduce((s, r) => s + r.comfort_score, 0) / (mine.length || 1);
+  const commAvgFlavor =
+    others.reduce((s, r) => s + r.flavor_rating, 0) / (others.length || 1);
+  const commAvgComfort =
+    others.reduce((s, r) => s + r.comfort_score, 0) / (others.length || 1);
+
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${place.name} ${place.address}`,
   )}`;
+
+  const nameFor = (uid: string | null) =>
+    !uid ? "Anonymous" : (profileMap[uid] ?? "A neighbor");
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -70,7 +114,7 @@ export function PlacePreview({
         <div className="mt-5 grid grid-cols-2 gap-3">
           <div className="rounded-2xl bg-card border border-border p-4">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-              Tum-Yum Score
+              Your Tum-Yum
             </p>
             {mine.length > 0 ? (
               <p className="text-3xl font-bold mt-1">
@@ -82,7 +126,7 @@ export function PlacePreview({
           </div>
           <div className="rounded-2xl bg-card border border-border p-4">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-              Digestive Comfort
+              Your Comfort
             </p>
             {mine.length > 0 ? (
               <p className="text-3xl font-bold mt-1 flex items-center gap-2">
@@ -135,12 +179,85 @@ export function PlacePreview({
           )}
         </div>
 
+        <div className="mt-6 rounded-2xl bg-secondary/40 border border-border p-4">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
+            Community Rating
+          </p>
+          {others.length === 0 ? (
+            <p className="text-sm text-muted-foreground italic">
+              No community reviews yet — be the first.
+            </p>
+          ) : (
+            <div className="flex items-center gap-6">
+              <div>
+                <p className="text-2xl font-bold">
+                  <span className="text-primary">★</span>{" "}
+                  {commAvgFlavor.toFixed(1)}
+                </p>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Avg flavor
+                </p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold flex items-center gap-2">
+                  <span>{COMFORT_FACES[Math.round(commAvgComfort) - 1]}</span>
+                  <span className="text-xl">{commAvgComfort.toFixed(1)}</span>
+                </p>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Avg comfort
+                </p>
+              </div>
+              <p className="ml-auto text-xs text-muted-foreground">
+                {others.length} review{others.length === 1 ? "" : "s"}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {others.length > 0 && (
+          <div className="mt-5">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
+              What others are saying
+            </p>
+            <ul className="space-y-2">
+              {others.slice(0, 6).map((r) => (
+                <li key={r.id} className="text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">
+                      {COMFORT_FACES[r.comfort_score - 1]}
+                    </span>
+                    <span className="font-medium truncate">
+                      <span className="text-muted-foreground">
+                        {nameFor(r.user_id)} tried:
+                      </span>{" "}
+                      {r.item_ordered}
+                    </span>
+                    <span className="ml-auto text-xs text-muted-foreground shrink-0">
+                      ★ {r.flavor_rating}
+                    </span>
+                  </div>
+                  {r.notes && (
+                    <p className="text-xs text-foreground/70 italic mt-0.5 ml-7">
+                      "{r.notes}"
+                    </p>
+                  )}
+                </li>
+              ))}
+              {others.length > 6 && (
+                <li className="text-xs text-muted-foreground">
+                  +{others.length - 6} more
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
+
         <Button
           onClick={() => onLogVisit(place)}
           className="rounded-full w-full mt-6 h-12 text-base"
           size="lg"
         >
-          Log a New Visit
+          {user ? "Log a New Visit" : "Sign in to log a visit"}
         </Button>
       </SheetContent>
     </Sheet>
