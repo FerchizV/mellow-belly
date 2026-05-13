@@ -11,6 +11,7 @@ import {
 import appCss from "../styles.css?url";
 import { BottomNav } from "@/components/mellow/BottomNav";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/hooks/use-auth";
 
 function NotFoundComponent() {
   return (
@@ -125,11 +126,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen pb-24">
-        <Outlet />
-      </div>
-      <BottomNav />
-      <Toaster position="top-center" />
+      <AuthProvider>
+        <div className="min-h-screen pb-24">
+          <Outlet />
+        </div>
+        <BottomNav />
+        <Toaster position="top-center" />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

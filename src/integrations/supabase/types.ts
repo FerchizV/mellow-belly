@@ -50,33 +50,57 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           comfort_score: number
           created_at: string
           flavor_rating: number
           id: string
+          is_public: boolean
           item_ordered: string
           notes: string | null
           place_id: string
+          user_id: string | null
         }
         Insert: {
           comfort_score: number
           created_at?: string
           flavor_rating: number
           id?: string
+          is_public?: boolean
           item_ordered: string
           notes?: string | null
           place_id: string
+          user_id?: string | null
         }
         Update: {
           comfort_score?: number
           created_at?: string
           flavor_rating?: number
           id?: string
+          is_public?: boolean
           item_ordered?: string
           notes?: string | null
           place_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -93,7 +117,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_reviews_feed: {
+        Args: never
+        Returns: {
+          comfort_score: number
+          created_at: string
+          flavor_rating: number
+          id: string
+          is_public: boolean
+          item_ordered: string
+          notes: string
+          place_id: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

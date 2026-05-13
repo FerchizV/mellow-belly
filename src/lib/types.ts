@@ -17,6 +17,13 @@ export type Review = {
   comfort_score: number;
   notes: string | null;
   created_at: string;
+  user_id: string | null;
+  is_public: boolean;
+};
+
+export type Profile = {
+  id: string;
+  display_name: string;
 };
 
 export const COMFORT_FACES = ["🤢", "😣", "😐", "🙂", "😍"] as const;

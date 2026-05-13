@@ -67,12 +67,9 @@ function Discover() {
   const { data: reviews = [] } = useQuery({
     queryKey: ["reviews"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("reviews")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.rpc("get_reviews_feed");
       if (error) throw error;
-      return data as Review[];
+      return (data ?? []) as Review[];
     },
   });
 

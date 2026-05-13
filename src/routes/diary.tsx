@@ -20,6 +20,8 @@ import type { Place, Review } from "@/lib/types";
 import { COMFORT_FACES, COMFORT_LABELS } from "@/lib/types";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/diary")({
   head: () => ({
@@ -36,6 +38,7 @@ export const Route = createFileRoute("/diary")({
 
 function Diary() {
   const qc = useQueryClient();
+  const { user, loading: authLoading } = useAuth();
   const [editing, setEditing] = useState<Review | null>(null);
   const [editPlace, setEditPlace] = useState<Place | null>(null);
   const [open, setOpen] = useState(false);
@@ -43,11 +46,13 @@ function Diary() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const { data: reviews = [] } = useQuery({
-    queryKey: ["reviews"],
+    queryKey: ["my-reviews", user?.id],
+    enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("reviews")
         .select("*")
+        .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Review[];
@@ -107,10 +112,29 @@ function Diary() {
       toast.error(error.message);
     } else {
       toast.success("Entry removed");
+      qc.invalidateQueries({ queryKey: ["my-reviews", user?.id] });
       qc.invalidateQueries({ queryKey: ["reviews"] });
     }
     setConfirmDelete(null);
   };
+
+  if (!authLoading && !user) {
+    return (
+      <div className="mx-auto max-w-md px-4 pt-20 text-center">
+        <BookHeart className="mx-auto mb-3 text-primary" size={36} />
+        <h1 className="text-2xl font-bold">Your diary lives here</h1>
+        <p className="text-muted-foreground mt-2 text-sm">
+          Sign in to log bites and keep a private food diary.
+        </p>
+        <Link
+          to="/login"
+          className="inline-flex mt-6 items-center justify-center rounded-full bg-primary text-primary-foreground px-6 h-11 text-sm font-medium"
+        >
+          Sign in
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-4 pt-8">
