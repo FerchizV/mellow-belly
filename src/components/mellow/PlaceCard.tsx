@@ -2,6 +2,7 @@ import { Sparkles, Leaf, MapPin, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Place, Review } from "@/lib/types";
 import { COMFORT_FACES } from "@/lib/types";
+import { useAuth } from "@/hooks/use-auth";
 
 export function PlaceCard({
   place,
@@ -12,12 +13,17 @@ export function PlaceCard({
   reviews: Review[];
   onAdd: (p: Place) => void;
 }) {
-  const mine = reviews.filter((r) => r.place_id === place.id);
+  const { user } = useAuth();
+  const here = reviews.filter((r) => r.place_id === place.id);
+  const mine = user ? here.filter((r) => r.user_id === user.id) : [];
+  const others = user ? here.filter((r) => r.user_id !== user.id) : here;
   const visited = mine.length > 0;
   const avgFlavor =
     mine.reduce((s, r) => s + r.flavor_rating, 0) / (mine.length || 1);
   const avgComfort =
     mine.reduce((s, r) => s + r.comfort_score, 0) / (mine.length || 1);
+  const commFlavor =
+    others.reduce((s, r) => s + r.flavor_rating, 0) / (others.length || 1);
 
   return (
     <div className="group rounded-3xl bg-card border border-border p-5 transition-all hover:shadow-lg hover:-translate-y-0.5">
@@ -63,12 +69,26 @@ export function PlaceCard({
               <span>{COMFORT_FACES[Math.round(avgComfort) - 1]}</span>
               <span className="font-medium">{avgComfort.toFixed(1)}</span>
             </div>
-            <span className="ml-auto text-xs text-muted-foreground">
-              {mine.length} bite{mine.length === 1 ? "" : "s"}
-            </span>
+            {others.length > 0 && (
+              <div className="flex items-center gap-1 ml-auto">
+                <span className="text-primary">★</span>
+                <span className="font-medium">{commFlavor.toFixed(1)}</span>
+                <span className="text-xs text-muted-foreground">
+                  community ({others.length})
+                </span>
+              </div>
+            )}
           </>
+        ) : others.length > 0 ? (
+          <div className="flex items-center gap-1">
+            <span className="text-primary">★</span>
+            <span className="font-medium">{commFlavor.toFixed(1)}</span>
+            <span className="text-xs text-muted-foreground">
+              community ({others.length})
+            </span>
+          </div>
         ) : (
-          <span className="text-xs text-muted-foreground">No bites yet</span>
+          <span className="text-xs text-muted-foreground">No reviews yet</span>
         )}
       </div>
     </div>
