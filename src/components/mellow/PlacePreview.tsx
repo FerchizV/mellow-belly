@@ -114,7 +114,7 @@ export function PlacePreview({
         <div className="mt-5 grid grid-cols-2 gap-3">
           <div className="rounded-2xl bg-card border border-border p-4">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-              Your Tum-Yum
+              Your Score
             </p>
             {mine.length > 0 ? (
               <p className="text-3xl font-bold mt-1">
