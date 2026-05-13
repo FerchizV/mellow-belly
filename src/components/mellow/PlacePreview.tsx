@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { ExternalLink, MapPin, Leaf, Pencil, Check, X } from "lucide-react";
+import { ExternalLink, MapPin, Leaf } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -8,10 +7,6 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import type { Place, Review } from "@/lib/types";
 import { COMFORT_FACES } from "@/lib/types";
 
@@ -28,16 +23,6 @@ export function PlacePreview({
   reviews: Review[];
   onLogVisit: (p: Place) => void;
 }) {
-  const qc = useQueryClient();
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    setEditing(false);
-    setDraft(place?.google_rating != null ? String(place.google_rating) : "");
-  }, [place?.id, place?.google_rating]);
-
   if (!place) return null;
   const mine = reviews.filter((r) => r.place_id === place.id);
   const avgFlavor =
@@ -47,27 +32,6 @@ export function PlacePreview({
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${place.name} ${place.address}`,
   )}`;
-
-  const saveRating = async () => {
-    const n = parseFloat(draft);
-    if (isNaN(n) || n < 0 || n > 5) {
-      toast.error("Rating must be between 0 and 5");
-      return;
-    }
-    setSaving(true);
-    const { error } = await supabase
-      .from("places")
-      .update({ google_rating: n })
-      .eq("id", place.id);
-    setSaving(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Rating updated");
-    setEditing(false);
-    qc.invalidateQueries({ queryKey: ["places"] });
-  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -105,77 +69,25 @@ export function PlacePreview({
 
         <div className="mt-5 grid grid-cols-2 gap-3">
           <div className="rounded-2xl bg-card border border-border p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                Google
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              Tum-Yum Score
+            </p>
+            {mine.length > 0 ? (
+              <p className="text-3xl font-bold mt-1">
+                <span className="text-primary">★</span> {avgFlavor.toFixed(1)}
               </p>
-              {!editing && (
-                <button
-                  type="button"
-                  onClick={() => setEditing(true)}
-                  className="text-muted-foreground hover:text-foreground"
-                  aria-label="Edit Google rating"
-                >
-                  <Pencil size={12} />
-                </button>
-              )}
-            </div>
-            {editing ? (
-              <div className="mt-1 flex items-center gap-1">
-                <Input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="5"
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  className="h-8 rounded-lg text-base px-2"
-                  autoFocus
-                />
-                <button
-                  type="button"
-                  onClick={saveRating}
-                  disabled={saving}
-                  className="text-primary p-1"
-                  aria-label="Save"
-                >
-                  <Check size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditing(false);
-                    setDraft(
-                      place.google_rating != null
-                        ? String(place.google_rating)
-                        : "",
-                    );
-                  }}
-                  className="text-muted-foreground p-1"
-                  aria-label="Cancel"
-                >
-                  <X size={16} />
-                </button>
-              </div>
             ) : (
-              <p className="text-2xl font-bold mt-1">
-                <span className="text-primary">★</span>{" "}
-                {place.google_rating != null
-                  ? place.google_rating.toFixed(1)
-                  : "0.0"}
-              </p>
+              <p className="text-sm text-muted-foreground mt-2">No score yet</p>
             )}
           </div>
           <div className="rounded-2xl bg-card border border-border p-4">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-              Your Tum-Yum
+              Digestive Comfort
             </p>
             {mine.length > 0 ? (
-              <p className="text-2xl font-bold mt-1 flex items-center gap-2">
-                <span>
-                  <span className="text-primary">★</span> {avgFlavor.toFixed(1)}
-                </span>
+              <p className="text-3xl font-bold mt-1 flex items-center gap-2">
                 <span>{COMFORT_FACES[Math.round(avgComfort) - 1]}</span>
+                <span className="text-2xl">{avgComfort.toFixed(1)}</span>
               </p>
             ) : (
               <p className="text-sm text-muted-foreground mt-2">No score yet</p>
