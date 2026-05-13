@@ -5,7 +5,6 @@ export type Place = {
   neighborhood: string;
   type: string;
   is_totally_vegan: boolean;
-  google_rating: number | null;
   lat: number;
   lng: number;
 };
