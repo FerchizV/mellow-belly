@@ -84,8 +84,9 @@ export function PlacePreview({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="rounded-t-3xl max-h-[85vh] overflow-y-auto p-6"
+        className="rounded-t-3xl max-h-[85vh] p-0 flex flex-col"
       >
+        <div className="flex-1 overflow-y-auto px-6 pt-6 pb-6">
         <SheetHeader className="text-left space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
             {place.is_totally_vegan && (
@@ -254,7 +255,9 @@ export function PlacePreview({
             </ul>
           </div>
         )}
+        </div>
 
+        <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <Button
           onClick={() => {
             if (!user) {
@@ -264,11 +267,12 @@ export function PlacePreview({
             }
             onLogVisit(place);
           }}
-          className="w-full mt-6 h-14 text-base font-bold rounded-2xl bg-primary text-primary-foreground shadow-[0_6px_0_color-mix(in_oklab,var(--primary)_55%,black)] hover:bg-primary/95 hover:-translate-y-0.5 hover:shadow-[0_8px_0_color-mix(in_oklab,var(--primary)_55%,black)] active:translate-y-1 active:shadow-[0_2px_0_color-mix(in_oklab,var(--primary)_55%,black)] transition-all duration-150"
+          className="w-full h-14 text-base font-bold rounded-2xl bg-primary text-primary-foreground shadow-[0_6px_0_color-mix(in_oklab,var(--primary)_55%,black)] hover:bg-primary/95 hover:-translate-y-0.5 hover:shadow-[0_8px_0_color-mix(in_oklab,var(--primary)_55%,black)] active:translate-y-1 active:shadow-[0_2px_0_color-mix(in_oklab,var(--primary)_55%,black)] transition-all duration-150"
           size="lg"
         >
           🍴 Add a Bite
         </Button>
+        </div>
       </SheetContent>
     </Sheet>
   );
