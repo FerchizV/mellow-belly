@@ -264,7 +264,7 @@ export function PlacePreview({
             }
             onLogVisit(place);
           }}
-          className="w-full mt-6 h-14 text-base font-bold rounded-2xl bg-primary text-primary-foreground shadow-[0_6px_0_hsl(var(--primary)/0.45)] hover:bg-primary/95 hover:-translate-y-0.5 hover:shadow-[0_8px_0_hsl(var(--primary)/0.45)] active:translate-y-1 active:shadow-[0_2px_0_hsl(var(--primary)/0.45)] transition-all duration-150"
+          className="w-full mt-6 h-14 text-base font-bold rounded-2xl bg-primary text-primary-foreground shadow-[0_6px_0_color-mix(in_oklab,var(--primary)_55%,black)] hover:bg-primary/95 hover:-translate-y-0.5 hover:shadow-[0_8px_0_color-mix(in_oklab,var(--primary)_55%,black)] active:translate-y-1 active:shadow-[0_2px_0_color-mix(in_oklab,var(--primary)_55%,black)] transition-all duration-150"
           size="lg"
         >
           🍴 Add a Bite
