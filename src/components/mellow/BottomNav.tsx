@@ -9,7 +9,7 @@ export function BottomNav() {
   if (location.pathname === "/login") return null;
 
   const items = [
-    { to: "/", label: "Discover", icon: Compass },
+    { to: "/discover", label: "Discover", icon: Compass },
     { to: "/diary", label: "Diary", icon: BookHeart },
     user
       ? { to: "/profile", label: "Profile", icon: UserIcon }
