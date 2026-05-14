@@ -16,7 +16,7 @@ export function BottomNav() {
       : { to: "/login", label: "Sign in", icon: LogIn },
   ] as const;
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/90 backdrop-blur-lg pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed bottom-0 inset-x-0 z-[1100] border-t border-border bg-card/95 backdrop-blur-lg pb-[env(safe-area-inset-bottom)]">
       <div className="mx-auto max-w-2xl grid grid-cols-3">
         {items.map(({ to, label, icon: Icon }) => (
           <Link
