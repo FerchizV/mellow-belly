@@ -20,6 +20,8 @@ import { AddPlaceDialog } from "@/components/mellow/AddPlaceDialog";
 import { PlacePreview } from "@/components/mellow/PlacePreview";
 import { SplashScreen } from "@/components/mellow/SplashScreen";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { Link } from "@tanstack/react-router";
 import type { Place, Review } from "@/lib/types";
 
 export const Route = createFileRoute("/")({
@@ -37,6 +39,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Discover() {
+  const { user } = useAuth();
   const [q, setQ] = useState("");
   const [neighborhood, setNeighborhood] = useState("all");
   const [type, setType] = useState("all");
@@ -137,13 +140,22 @@ function Discover() {
               Your dairy-free food guide for San Francisco.
             </p>
           </div>
-          <Button
-            onClick={() => setAddOpen(true)}
-            className="rounded-full shadow-sm shrink-0"
-            size="sm"
-          >
-            <Plus className="mr-1" size={16} /> Add spot
-          </Button>
+          {user ? (
+            <Button
+              onClick={() => setAddOpen(true)}
+              className="rounded-full shadow-sm shrink-0"
+              size="sm"
+            >
+              <Plus className="mr-1" size={16} /> Add spot
+            </Button>
+          ) : (
+            <Link
+              to="/login"
+              className="text-xs text-muted-foreground underline shrink-0 mt-2"
+            >
+              Sign in to add a spot
+            </Link>
+          )}
         </div>
       </header>
 
