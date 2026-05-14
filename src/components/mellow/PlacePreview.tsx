@@ -13,6 +13,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export function PlacePreview({
   open,
@@ -28,6 +30,7 @@ export function PlacePreview({
   onLogVisit: (p: Place) => void;
 }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const placeReviews = useMemo(
     () => (place ? reviews.filter((r) => r.place_id === place.id) : []),
@@ -253,11 +256,18 @@ export function PlacePreview({
         )}
 
         <Button
-          onClick={() => onLogVisit(place)}
-          className="rounded-full w-full mt-6 h-12 text-base"
+          onClick={() => {
+            if (!user) {
+              toast("Sign in to start your Mellow Belly diary!");
+              navigate({ to: "/login" });
+              return;
+            }
+            onLogVisit(place);
+          }}
+          className="w-full mt-6 h-14 text-base font-bold rounded-2xl bg-primary text-primary-foreground shadow-[0_6px_0_hsl(var(--primary)/0.45)] hover:bg-primary/95 hover:-translate-y-0.5 hover:shadow-[0_8px_0_hsl(var(--primary)/0.45)] active:translate-y-1 active:shadow-[0_2px_0_hsl(var(--primary)/0.45)] transition-all duration-150"
           size="lg"
         >
-          {user ? "Log a New Visit" : "Sign in to log a visit"}
+          🍴 Add a Bite
         </Button>
       </SheetContent>
     </Sheet>
