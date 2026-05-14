@@ -20,6 +20,7 @@ import { ReviewDialog } from "@/components/mellow/ReviewDialog";
 import { AddPlaceDialog } from "@/components/mellow/AddPlaceDialog";
 import { PlacePreview } from "@/components/mellow/PlacePreview";
 import { SplashScreen } from "@/components/mellow/SplashScreen";
+import { Mascot } from "@/components/mellow/Mascot";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "@tanstack/react-router";
@@ -236,8 +237,27 @@ function Discover() {
           <PlaceCard key={p.id} place={p} reviews={reviews} onAdd={onPick} />
         ))}
         {filtered.length === 0 && (
-          <div className="rounded-3xl bg-card p-10 text-center text-muted-foreground">
-            No spots match — try loosening your filters.
+          <div className="rounded-3xl bg-card p-10 text-center">
+            <Mascot className="h-32 w-auto mx-auto mb-3 -rotate-6" />
+            <p className="font-medium text-foreground">
+              Oh no! I couldn't find any dairy-free spots here.
+            </p>
+            {user ? (
+              <Button
+                onClick={() => setAddOpen(true)}
+                variant="link"
+                className="mt-1 text-primary"
+              >
+                Want to add one?
+              </Button>
+            ) : (
+              <Link
+                to="/login"
+                className="inline-block mt-2 text-sm text-primary underline"
+              >
+                Sign in to add a spot
+              </Link>
+            )}
           </div>
         )}
       </div>
