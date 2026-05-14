@@ -83,6 +83,11 @@
 
 /* Leaflet pin tweak */
 .leaflet-container { font-family: inherit; border-radius: 1rem; }
+/* Keep all Leaflet panes/controls beneath the fixed bottom nav (z-[1100]) */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control { z-index: 30 !important; }
 .belly-pin {
   background: var(--primary);
   border: 3px solid var(--card);
