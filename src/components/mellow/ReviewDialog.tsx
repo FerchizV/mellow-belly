@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Stars, ComfortPicker } from "./Stars";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { mascotSrc } from "./Mascot";
 import type { Place, Review } from "@/lib/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
@@ -79,7 +80,11 @@ export function ReviewDialog({
       toast.error(res.error.message);
       return;
     }
-    toast.success(existing ? "Diary entry updated" : "Added to your diary");
+    toast.success(existing ? "Diary entry updated" : "Added to your diary", {
+      icon: (
+        <img src={mascotSrc} alt="" className="h-8 w-8 object-contain" />
+      ),
+    });
     qc.invalidateQueries({ queryKey: ["reviews"] });
     qc.invalidateQueries({ queryKey: ["my-reviews", user.id] });
     onOpenChange(false);

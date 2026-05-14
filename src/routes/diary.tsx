@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pencil, Trash2, BookHeart, ChevronDown } from "lucide-react";
 import logo from "@/assets/mellow-belly-logo.jpeg";
+import { Mascot } from "@/components/mellow/Mascot";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -122,10 +123,10 @@ function Diary() {
   if (!authLoading && !user) {
     return (
       <div className="mx-auto max-w-md px-4 pt-20 text-center">
-        <BookHeart className="mx-auto mb-3 text-primary" size={36} />
+        <Mascot className="h-40 w-auto mx-auto mb-4" />
         <h1 className="text-2xl font-bold">Your diary lives here</h1>
         <p className="text-muted-foreground mt-2 text-sm">
-          Sign in to log bites and keep a private food diary.
+          Sign in to log bites and keep a food diary.
         </p>
         <Link
           to="/login"
@@ -157,7 +158,7 @@ function Diary() {
 
       {grouped.length === 0 ? (
         <div className="rounded-3xl bg-card border border-border p-12 text-center">
-          <BookHeart className="mx-auto mb-3 text-primary" size={36} />
+          <Mascot className="h-36 w-auto mx-auto mb-3" />
           <p className="font-medium">No bites yet.</p>
           <p className="text-sm text-muted-foreground mt-1">
             Head to Discover and tap the + on a spot to start logging.

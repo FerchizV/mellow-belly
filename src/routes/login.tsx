@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import logo from "@/assets/mellow-belly-logo.jpeg";
+import { Mascot } from "@/components/mellow/Mascot";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -74,6 +75,7 @@ function LoginPage() {
           className="h-24 w-auto mx-auto"
         />
       </Link>
+      <Mascot className="h-28 w-auto mx-auto -mt-2 mb-2" />
       <h1 className="text-3xl font-bold text-center">
         {mode === "login" ? "Welcome back" : "Join the table"}
       </h1>

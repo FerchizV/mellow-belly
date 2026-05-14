@@ -22,6 +22,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { mascotSrc } from "./Mascot";
 import type { Place } from "@/lib/types";
 
 export const PLACE_TYPES = [
@@ -137,7 +138,9 @@ export function AddPlaceDialog({
       toast.error(error.message);
       return;
     }
-    toast.success("Spot added to the community guide!");
+    toast.success("Spot added to the community guide!", {
+      icon: <img src={mascotSrc} alt="" className="h-8 w-8 object-contain" />,
+    });
     qc.invalidateQueries({ queryKey: ["places"] });
     reset();
     onOpenChange(false);
