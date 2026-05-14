@@ -51,12 +51,8 @@ function Discover() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [neighborhoodOpen, setNeighborhoodOpen] = useState(false);
   const [typeOpen, setTypeOpen] = useState(false);
-  const [splashDone, setSplashDone] = useState(() => {
-    if (typeof window === "undefined") return true;
-    return sessionStorage.getItem("mellow-splash-shown") === "1";
-  });
 
-  const { data: places = [], isSuccess: placesLoaded } = useQuery({
+  const { data: places = [] } = useQuery({
     queryKey: ["places"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -117,14 +113,6 @@ function Discover() {
 
   return (
     <>
-      {!splashDone && (
-          ready={placesLoaded}
-          onDone={() => {
-            sessionStorage.setItem("mellow-splash-shown", "1");
-            setSplashDone(true);
-          }}
-        />
-      )}
     <div className="mx-auto max-w-2xl px-4 pt-8">
       <header className="mb-6">
         <div className="flex items-start justify-between gap-3">
