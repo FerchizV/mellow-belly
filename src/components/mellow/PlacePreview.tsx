@@ -84,7 +84,7 @@ export function PlacePreview({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="rounded-t-3xl max-h-[85vh] p-0 flex flex-col"
+        className="rounded-t-3xl max-h-[85vh] p-0 flex flex-col z-[1200]"
       >
         <div className="flex-1 overflow-y-auto px-6 pt-6 pb-6">
         <SheetHeader className="text-left space-y-2">
