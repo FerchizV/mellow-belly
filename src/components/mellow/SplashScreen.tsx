@@ -28,13 +28,14 @@ export function SplashScreen({ ready, onDone }: SplashScreenProps) {
       className={`fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-500 ${
         fadingOut ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
-      style={{ backgroundColor: "#FFF9F5" }}
+      style={{ backgroundColor: "#ece8dc" }}
       aria-hidden={fadingOut}
     >
       <img
         src={logo}
         alt="Mellow Belly"
-        className="w-64 max-w-[70vw] h-auto object-contain animate-squish"
+        className="w-64 max-w-[70vw] h-auto object-contain animate-squish block"
+        style={{ backgroundColor: "#ece8dc" }}
       />
     </div>
   );
