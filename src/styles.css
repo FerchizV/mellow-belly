@@ -39,12 +39,12 @@
 
 :root {
   --radius: 1rem;
-  /* Mellow Belly palette: warm cream, peach, sage, terracotta */
-  --background: oklch(0.985 0.018 75);          /* warm cream */
+  /* Mellow Belly palette: logo cream, peach, sage, terracotta */
+  --background: #ece8dc;                        /* matches logo background */
   --foreground: oklch(0.28 0.04 35);            /* deep cocoa */
-  --card: oklch(0.995 0.012 80);
+  --card: #ffffff;                              /* pure white cards pop on cream */
   --card-foreground: oklch(0.28 0.04 35);
-  --popover: oklch(0.995 0.012 80);
+  --popover: #ffffff;
   --popover-foreground: oklch(0.28 0.04 35);
 
   --primary: oklch(0.68 0.16 35);               /* terracotta peach */
