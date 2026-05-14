@@ -12,7 +12,7 @@ export function Mascot({
     <img
       src={mascot}
       alt={alt}
-      className={cn("block select-none mix-blend-multiply", className)}
+      className={cn("block select-none", className)}
       draggable={false}
     />
   );
