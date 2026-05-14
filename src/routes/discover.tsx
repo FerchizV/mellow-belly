@@ -19,7 +19,6 @@ import { PlaceCard } from "@/components/mellow/PlaceCard";
 import { ReviewDialog } from "@/components/mellow/ReviewDialog";
 import { AddPlaceDialog } from "@/components/mellow/AddPlaceDialog";
 import { PlacePreview } from "@/components/mellow/PlacePreview";
-import { SplashScreen } from "@/components/mellow/SplashScreen";
 import { Mascot } from "@/components/mellow/Mascot";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -119,7 +118,6 @@ function Discover() {
   return (
     <>
       {!splashDone && (
-        <SplashScreen
           ready={placesLoaded}
           onDone={() => {
             sessionStorage.setItem("mellow-splash-shown", "1");
