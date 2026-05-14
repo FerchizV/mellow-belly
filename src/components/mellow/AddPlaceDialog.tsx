@@ -137,7 +137,7 @@ export function AddPlaceDialog({
       toast.error(error.message);
       return;
     }
-    toast.success(`${(data as Place).name} added to the map`);
+    toast.success("Spot added to the community guide!");
     qc.invalidateQueries({ queryKey: ["places"] });
     reset();
     onOpenChange(false);
