@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Leaf } from "lucide-react";
+import logo from "@/assets/mellow-belly-logo.jpeg";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -62,14 +62,22 @@ function LoginPage() {
   };
 
   return (
-    <div className="mx-auto max-w-sm px-4 pt-16">
-      <Link to="/" className="inline-flex items-center gap-2 text-primary mb-8">
-        <Leaf size={20} /> <span className="font-semibold">Mellow Belly</span>
+    <div
+      className="min-h-screen w-full"
+      style={{ backgroundColor: "#ece8dc" }}
+    >
+    <div className="mx-auto max-w-sm px-4 pt-12 pb-16">
+      <Link to="/" className="block mx-auto mb-6 w-fit">
+        <img
+          src={logo}
+          alt="Mellow Belly"
+          className="h-24 w-auto mx-auto"
+        />
       </Link>
-      <h1 className="text-3xl font-bold">
+      <h1 className="text-3xl font-bold text-center">
         {mode === "login" ? "Welcome back" : "Join the table"}
       </h1>
-      <p className="text-muted-foreground mt-1 text-sm">
+      <p className="text-muted-foreground mt-1 text-sm text-center">
         {mode === "login"
           ? "Sign in to log bites and see the community."
           : "Create an account to track your dairy-free finds."}
@@ -131,6 +139,7 @@ function LoginPage() {
           ? "New here? Create an account"
           : "Already have an account? Sign in"}
       </button>
+    </div>
     </div>
   );
 }
