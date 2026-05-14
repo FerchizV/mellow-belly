@@ -237,7 +237,7 @@ function Discover() {
           <PlaceCard key={p.id} place={p} reviews={reviews} onAdd={onPick} />
         ))}
         {filtered.length === 0 && (
-          <div className="rounded-3xl bg-card p-10 text-center">
+          <div className="p-10 text-center">
             <Mascot className="h-32 w-auto mx-auto mb-3 -rotate-6" />
             <p className="font-medium text-foreground">
               Oh no! I couldn't find any dairy-free spots here.
