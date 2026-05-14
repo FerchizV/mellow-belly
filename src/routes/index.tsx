@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Leaf, Plus } from "lucide-react";
+import logo from "@/assets/mellow-belly-logo.jpeg";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -129,9 +130,11 @@ function Discover() {
       <header className="mb-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
-              Mellow Belly
-            </p>
+            <img
+              src={logo}
+              alt="Mellow Belly"
+              className="h-12 w-auto -ml-1 mb-1"
+            />
             <h1 className="text-4xl font-bold mt-1">All the yum,</h1>
             <h1 className="text-4xl font-bold text-primary -mt-1">
               none of the bloat.

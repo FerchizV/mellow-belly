@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pencil, Trash2, BookHeart, ChevronDown } from "lucide-react";
+import logo from "@/assets/mellow-belly-logo.jpeg";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -139,6 +140,11 @@ function Diary() {
   return (
     <div className="mx-auto max-w-2xl px-4 pt-8">
       <header className="mb-6">
+        <img
+          src={logo}
+          alt="Mellow Belly"
+          className="h-10 w-auto -ml-1 mb-2"
+        />
         <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
           My Diary
         </p>

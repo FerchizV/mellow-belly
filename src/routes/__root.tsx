@@ -93,6 +93,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "icon", type: "image/jpeg", href: "/mellow-belly-logo.jpeg" },
+      { rel: "apple-touch-icon", href: "/mellow-belly-logo.jpeg" },
+      { rel: "shortcut icon", href: "/mellow-belly-logo.jpeg" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
