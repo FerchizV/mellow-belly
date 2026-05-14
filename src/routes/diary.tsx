@@ -157,7 +157,7 @@ function Diary() {
       </header>
 
       {grouped.length === 0 ? (
-        <div className="rounded-3xl bg-card border border-border p-12 text-center">
+        <div className="p-12 text-center">
           <Mascot className="h-36 w-auto mx-auto mb-3" />
           <p className="font-medium">No bites yet.</p>
           <p className="text-sm text-muted-foreground mt-1">
