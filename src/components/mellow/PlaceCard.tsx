@@ -8,10 +8,12 @@ export function PlaceCard({
   place,
   reviews,
   onAdd,
+  onView,
 }: {
   place: Place;
   reviews: Review[];
   onAdd: (p: Place) => void;
+  onView: (p: Place) => void;
 }) {
   const { user } = useAuth();
   const here = reviews.filter((r) => r.place_id === place.id);
@@ -26,7 +28,18 @@ export function PlaceCard({
     others.reduce((s, r) => s + r.flavor_rating, 0) / (others.length || 1);
 
   return (
-    <div className="group rounded-3xl bg-card border border-border p-5 transition-all hover:shadow-lg hover:-translate-y-0.5">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onView(place)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onView(place);
+        }
+      }}
+      className="group rounded-3xl bg-card border border-border p-5 cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5 hover:border-primary/40 active:translate-y-0 active:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
@@ -49,9 +62,12 @@ export function PlaceCard({
         </div>
         <Button
           size="icon"
-          onClick={() => onAdd(place)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onAdd(place);
+          }}
           className="rounded-full shrink-0 shadow-sm"
-          aria-label="Log a bite"
+          aria-label="Add a bite"
         >
           <Plus />
         </Button>
