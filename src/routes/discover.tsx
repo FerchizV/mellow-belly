@@ -22,7 +22,8 @@ import { PlacePreview } from "@/components/mellow/PlacePreview";
 import { Mascot } from "@/components/mellow/Mascot";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 import type { Place, Review } from "@/lib/types";
 
 export const Route = createFileRoute("/discover")({
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/discover")({
 
 function Discover() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [neighborhood, setNeighborhood] = useState("all");
   const [type, setType] = useState("all");
@@ -106,6 +108,11 @@ function Discover() {
   };
 
   const onLogVisit = (p: Place) => {
+    if (!user) {
+      toast("Sign in to start your Mellow Belly diary!");
+      navigate({ to: "/login" });
+      return;
+    }
     setPicked(p);
     setPreviewOpen(false);
     setOpen(true);
@@ -220,7 +227,13 @@ function Discover() {
           {filtered.length} spot{filtered.length === 1 ? "" : "s"}
         </p>
         {filtered.map((p) => (
-          <PlaceCard key={p.id} place={p} reviews={reviews} onAdd={onPick} />
+          <PlaceCard
+            key={p.id}
+            place={p}
+            reviews={reviews}
+            onAdd={onLogVisit}
+            onView={onPick}
+          />
         ))}
         {filtered.length === 0 && (
           <div className="p-10 text-center">
