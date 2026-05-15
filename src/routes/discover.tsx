@@ -220,7 +220,13 @@ function Discover() {
           {filtered.length} spot{filtered.length === 1 ? "" : "s"}
         </p>
         {filtered.map((p) => (
-          <PlaceCard key={p.id} place={p} reviews={reviews} onAdd={onPick} />
+          <PlaceCard
+            key={p.id}
+            place={p}
+            reviews={reviews}
+            onAdd={onLogVisit}
+            onView={onPick}
+          />
         ))}
         {filtered.length === 0 && (
           <div className="p-10 text-center">
