@@ -19,13 +19,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { mascotSrc } from "./Mascot";
+import { Mascot, mascotSrc } from "./Mascot";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { Place } from "@/lib/types";
 
-export const PLACE_TYPES = [
+export const DEFAULT_PLACE_TYPES = [
   "Café",
   "Fast Food",
   "Boba",
@@ -41,7 +56,7 @@ const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(120),
   address: z.string().trim().min(3, "Address is required").max(200),
   neighborhood: z.string().trim().min(1, "Pick a neighborhood").max(80),
-  type: z.enum(PLACE_TYPES),
+  type: z.string().trim().min(2, "Pick a food type").max(60),
   is_totally_vegan: z.boolean(),
 });
 
@@ -75,9 +90,39 @@ export function AddPlaceDialog({
   const [address, setAddress] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [customNeighborhood, setCustomNeighborhood] = useState("");
-  const [type, setType] = useState<(typeof PLACE_TYPES)[number]>("Café");
+  const [type, setType] = useState<string>("Café");
+  const [typeOpen, setTypeOpen] = useState(false);
+  const [typeQuery, setTypeQuery] = useState("");
   const [vegan, setVegan] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const { data: existingTypes = [] } = useQuery({
+    queryKey: ["place-types"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("places")
+        .select("type")
+        .limit(1000);
+      if (error) throw error;
+      return Array.from(
+        new Set((data ?? []).map((r) => (r.type ?? "").trim()).filter(Boolean)),
+      );
+    },
+  });
+
+  const allTypes = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const t of [...DEFAULT_PLACE_TYPES, ...existingTypes]) {
+      const key = t.toLowerCase();
+      if (!map.has(key)) map.set(key, t);
+    }
+    return Array.from(map.values()).sort((a, b) => a.localeCompare(b));
+  }, [existingTypes]);
+
+  const trimmedQuery = typeQuery.trim();
+  const queryLower = trimmedQuery.toLowerCase();
+  const existingMatch = allTypes.find((t) => t.toLowerCase() === queryLower);
+  const showCreate = trimmedQuery.length >= 2 && !existingMatch;
 
   const neighborhoodOptions = useMemo(
     () => [...neighborhoods, "__other__"],
@@ -90,6 +135,7 @@ export function AddPlaceDialog({
     setNeighborhood("");
     setCustomNeighborhood("");
     setType("Café");
+    setTypeQuery("");
     setVegan(false);
   };
 
@@ -142,6 +188,7 @@ export function AddPlaceDialog({
       icon: <img src={mascotSrc} alt="" className="h-8 w-8 object-contain" />,
     });
     qc.invalidateQueries({ queryKey: ["places"] });
+    qc.invalidateQueries({ queryKey: ["place-types"] });
     reset();
     onOpenChange(false);
   };
@@ -215,21 +262,102 @@ export function AddPlaceDialog({
 
           <div className="space-y-2">
             <Label>Food type</Label>
-            <Select
-              value={type}
-              onValueChange={(v) => setType(v as (typeof PLACE_TYPES)[number])}
-            >
-              <SelectTrigger className="rounded-xl">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PLACE_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-start gap-3">
+              <div className="flex-1">
+                <Popover open={typeOpen} onOpenChange={setTypeOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={typeOpen}
+                      className="w-full justify-between rounded-xl font-normal"
+                    >
+                      {type || "Pick or add a food type"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="p-0 w-[--radix-popover-trigger-width]"
+                    align="start"
+                  >
+                    <Command
+                      filter={(value, search) =>
+                        value.toLowerCase().includes(search.toLowerCase())
+                          ? 1
+                          : 0
+                      }
+                    >
+                      <CommandInput
+                        placeholder="Search or add a type..."
+                        value={typeQuery}
+                        onValueChange={setTypeQuery}
+                        maxLength={60}
+                      />
+                      <CommandList>
+                        <CommandEmpty>
+                          {trimmedQuery
+                            ? "No matches — type to add a new one."
+                            : "Start typing..."}
+                        </CommandEmpty>
+                        <CommandGroup>
+                          {allTypes.map((t) => (
+                            <CommandItem
+                              key={t}
+                              value={t}
+                              onSelect={() => {
+                                setType(t);
+                                setTypeQuery("");
+                                setTypeOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  type.toLowerCase() === t.toLowerCase()
+                                    ? "opacity-100"
+                                    : "opacity-0",
+                                )}
+                              />
+                              {t}
+                            </CommandItem>
+                          ))}
+                          {showCreate && (
+                            <CommandItem
+                              value={`__add__${trimmedQuery}`}
+                              onSelect={() => {
+                                setType(trimmedQuery);
+                                setTypeQuery("");
+                                setTypeOpen(false);
+                                toast.success(
+                                  `Added "${trimmedQuery}" — it'll be saved with your spot.`,
+                                );
+                              }}
+                              className="text-primary"
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add "{trimmedQuery}"
+                            </CommandItem>
+                          )}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="relative shrink-0 hidden sm:block">
+                <div className="absolute -top-2 right-full mr-2 w-44 rounded-2xl rounded-br-sm bg-secondary px-3 py-2 text-xs text-secondary-foreground shadow-sm">
+                  Oh, something new? Tell me what kind of food this is!
+                </div>
+                <Mascot className="h-14 w-14" />
+              </div>
+            </div>
+            <div className="flex items-start gap-2 sm:hidden">
+              <Mascot className="h-10 w-10 shrink-0" />
+              <p className="rounded-2xl bg-secondary px-3 py-2 text-xs text-secondary-foreground">
+                Oh, something new? Tell me what kind of food this is!
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center justify-between rounded-2xl bg-secondary/60 px-4 py-3">
