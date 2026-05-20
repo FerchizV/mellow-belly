@@ -86,7 +86,7 @@ export function HelpButton() {
               </AccordionItem>
 
               <AccordionItem value="how">
-                <AccordionTrigger className="text-left">How to Play</AccordionTrigger>
+                <AccordionTrigger className="text-left">How to use Mellow Belly</AccordionTrigger>
                 <AccordionContent className="space-y-3 text-sm leading-relaxed text-muted-foreground">
                   <p>
                     <span className="font-semibold text-foreground">📍 Discover:</span>{" "}
