@@ -38,7 +38,7 @@ export function ReviewDialog({
   const [flavor, setFlavor] = useState(4);
   const [comfort, setComfort] = useState(4);
   const [notes, setNotes] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export function ReviewDialog({
       setFlavor(existing?.flavor_rating ?? 4);
       setComfort(existing?.comfort_score ?? 4);
       setNotes(existing?.notes ?? "");
-      setIsPublic(existing?.is_public ?? false);
+      setIsPublic(existing?.is_public ?? true);
     }
   }, [open, existing]);
 
@@ -129,19 +129,20 @@ export function ReviewDialog({
               className="rounded-xl"
               rows={3}
             />
-            <div className="flex items-center justify-between rounded-2xl bg-secondary/60 px-4 py-3 mt-2">
-              <div>
+            <div className="flex items-center justify-between rounded-2xl bg-secondary/60 px-4 py-3 mt-2 gap-3">
+              <div className="flex-1">
                 <Label htmlFor="public-toggle" className="cursor-pointer">
                   Make notes public
                 </Label>
-                <p className="text-xs text-muted-foreground">
-                  Off by default — only you see your notes.
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your safe-bite tips help the Mellow Belly community! Uncheck to keep this note private.
                 </p>
               </div>
               <Switch
                 id="public-toggle"
                 checked={isPublic}
                 onCheckedChange={setIsPublic}
+                className="data-[state=checked]:bg-primary"
               />
             </div>
           </div>
