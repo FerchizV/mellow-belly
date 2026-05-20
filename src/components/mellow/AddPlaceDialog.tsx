@@ -281,6 +281,8 @@ export function AddPlaceDialog({
                   <PopoverContent
                     className="p-0 w-[--radix-popover-trigger-width]"
                     align="start"
+                    onWheel={(e) => e.stopPropagation()}
+                    onTouchMove={(e) => e.stopPropagation()}
                   >
                     <Command
                       filter={(value, search) =>
@@ -295,7 +297,7 @@ export function AddPlaceDialog({
                         onValueChange={setNeighborhoodQuery}
                         maxLength={80}
                       />
-                      <CommandList>
+                      <CommandList className="max-h-[260px] overflow-y-auto overscroll-contain">
                         <CommandEmpty>
                           {trimmedNbhd
                             ? "No matches — type to add a new one."
@@ -381,6 +383,8 @@ export function AddPlaceDialog({
                   <PopoverContent
                     className="p-0 w-[--radix-popover-trigger-width]"
                     align="start"
+                    onWheel={(e) => e.stopPropagation()}
+                    onTouchMove={(e) => e.stopPropagation()}
                   >
                     <Command
                       filter={(value, search) =>
@@ -395,7 +399,7 @@ export function AddPlaceDialog({
                         onValueChange={setTypeQuery}
                         maxLength={60}
                       />
-                      <CommandList>
+                      <CommandList className="max-h-[260px] overflow-y-auto overscroll-contain">
                         <CommandEmpty>
                           {trimmedQuery
                             ? "No matches — type to add a new one."
