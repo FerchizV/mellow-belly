@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Leaf, Plus } from "lucide-react";
 import logo from "@/assets/mellow-belly-logo.jpeg";
@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import standingMascot from "@/assets/standing-mellow-guy.png";
 import type { Place, Review } from "@/lib/types";
 
 export const Route = createFileRoute("/discover")({
@@ -43,6 +44,38 @@ export const Route = createFileRoute("/discover")({
 function Discover() {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!user) return;
+    if (sessionStorage.getItem("mb:justLoggedIn") !== "1") return;
+    sessionStorage.removeItem("mb:justLoggedIn");
+    const firstName =
+      (user.user_metadata?.display_name as string | undefined)?.split(" ")[0] ??
+      (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] ??
+      user.email?.split("@")[0];
+    const message = firstName
+      ? `Welcome back, ${firstName}! Let's eat.`
+      : "Welcome back! Ready to find some safe bites?";
+    toast.custom(
+      (t) => (
+        <div
+          className="flex items-center gap-3 rounded-2xl bg-secondary text-secondary-foreground shadow-lg pl-2 pr-4 py-2 border border-primary/20"
+          onClick={() => toast.dismiss(t)}
+        >
+          <img
+            src={standingMascot}
+            alt=""
+            className="h-12 w-12 object-contain select-none"
+            draggable={false}
+          />
+          <p className="text-sm font-semibold leading-snug">{message}</p>
+        </div>
+      ),
+      { duration: 3500, position: "top-center" },
+    );
+  }, [user]);
+
   const [q, setQ] = useState("");
   const [neighborhood, setNeighborhood] = useState("all");
   const [type, setType] = useState("all");
