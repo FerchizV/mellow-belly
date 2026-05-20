@@ -129,14 +129,6 @@ export function ReviewDialog({
               className="rounded-xl"
               rows={3}
             />
-            <div className="flex items-center justify-between rounded-2xl bg-secondary/60 px-4 py-3 mt-2">
-              <div>
-                <Label htmlFor="public-toggle" className="cursor-pointer">
-                  Make notes public
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Off by default — only you see your notes.
-                </p>
             <div className="flex items-center justify-between rounded-2xl bg-secondary/60 px-4 py-3 mt-2 gap-3">
               <div className="flex-1">
                 <Label htmlFor="public-toggle" className="cursor-pointer">
@@ -153,6 +145,12 @@ export function ReviewDialog({
                 className="data-[state=checked]:bg-primary"
               />
             </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          {!user && (
+            <Link
               to="/login"
               className="text-sm text-primary hover:underline mr-auto self-center"
             >
