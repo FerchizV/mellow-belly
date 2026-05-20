@@ -139,8 +139,8 @@ function Diary() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pt-8">
-      <header className="mb-6">
+    <div className="mx-auto max-w-2xl px-4 pt-8 pb-28">
+      <header className="mb-6 pr-14">
         <img
           src={logo}
           alt="Mellow Belly"

@@ -23,8 +23,8 @@ export function HelpButton() {
         aria-label="Open help guide"
         onClick={() => setOpen(true)}
         className={cn(
-          "fixed right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-[1200]",
-          "flex h-11 w-11 items-center justify-center rounded-full",
+          "fixed right-3 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[1200]",
+          "flex h-10 w-10 items-center justify-center rounded-full",
           "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur",
           "border border-primary-foreground/20",
           "transition-transform duration-200 ease-out",
