@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HelpCircle, X } from "lucide-react";
 import { useLocation } from "@tanstack/react-router";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
@@ -13,7 +13,30 @@ import { cn } from "@/lib/utils";
 
 export function HelpButton() {
   const [open, setOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const location = useLocation();
+
+  // Hide the floating "?" whenever any Radix dialog/sheet is open so it
+  // can't cover the modal's close button.
+  useEffect(() => {
+    const check = () => {
+      const anyOpen = document.querySelectorAll(
+        '[role="dialog"][data-state="open"]',
+      ).length;
+      // Exclude our own help modal from triggering hide (it sits above anyway).
+      setDialogOpen(anyOpen > (open ? 1 : 0));
+    };
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.body, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-state"],
+      childList: true,
+    });
+    return () => obs.disconnect();
+  }, [open]);
+
   if (location.pathname === "/login") return null;
 
   return (
@@ -29,6 +52,8 @@ export function HelpButton() {
           "border border-primary-foreground/20",
           "transition-transform duration-200 ease-out",
           "hover:scale-110 hover:bg-primary active:scale-95",
+          "transition-opacity",
+          dialogOpen && "pointer-events-none opacity-0",
         )}
       >
         <HelpCircle size={22} strokeWidth={2.25} />
