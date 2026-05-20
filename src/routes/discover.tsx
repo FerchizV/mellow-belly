@@ -153,8 +153,8 @@ function Discover() {
 
   return (
     <>
-    <div className="mx-auto max-w-2xl px-4 pt-8">
-      <header className="mb-6">
+    <div className="mx-auto max-w-2xl px-4 pt-8 pb-28">
+      <header className="mb-6 pr-14">
         <div className="flex items-start justify-between gap-3">
           <div>
             <img
@@ -195,7 +195,7 @@ function Discover() {
         </div>
       )}
 
-      <div className="space-y-3 sticky top-0 z-30 bg-background/85 backdrop-blur py-3 -mx-4 px-4 border-b border-border/60">
+      <div className="space-y-3 sticky top-0 z-20 bg-background/85 backdrop-blur py-3 -mx-4 px-4 border-b border-border/60">
         <div className="relative">
           <Search
             size={16}
