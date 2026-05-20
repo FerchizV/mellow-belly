@@ -13,13 +13,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -89,7 +82,8 @@ export function AddPlaceDialog({
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
-  const [customNeighborhood, setCustomNeighborhood] = useState("");
+  const [neighborhoodOpen, setNeighborhoodOpen] = useState(false);
+  const [neighborhoodQuery, setNeighborhoodQuery] = useState("");
   const [type, setType] = useState<string>("Café");
   const [typeOpen, setTypeOpen] = useState(false);
   const [typeQuery, setTypeQuery] = useState("");
@@ -124,24 +118,55 @@ export function AddPlaceDialog({
   const existingMatch = allTypes.find((t) => t.toLowerCase() === queryLower);
   const showCreate = trimmedQuery.length >= 2 && !existingMatch;
 
-  const neighborhoodOptions = useMemo(
-    () => [...neighborhoods, "__other__"],
-    [neighborhoods],
-  );
+  const { data: dbNeighborhoods = [] } = useQuery({
+    queryKey: ["neighborhoods"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("places")
+        .select("neighborhood")
+        .limit(1000);
+      if (error) throw error;
+      return Array.from(
+        new Set(
+          (data ?? [])
+            .map((r) => (r.neighborhood ?? "").trim())
+            .filter(Boolean),
+        ),
+      );
+    },
+  });
+
+  const allNeighborhoods = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const n of [...neighborhoods, ...dbNeighborhoods]) {
+      const key = n.toLowerCase();
+      if (!map.has(key)) map.set(key, n);
+    }
+    return Array.from(map.values()).sort((a, b) => a.localeCompare(b));
+  }, [neighborhoods, dbNeighborhoods]);
+
+  const trimmedNbhd = neighborhoodQuery.trim();
+  const nbhdLower = trimmedNbhd.toLowerCase();
+  const nbhdMatch = allNeighborhoods.find((n) => n.toLowerCase() === nbhdLower);
+  const showCreateNbhd = trimmedNbhd.length >= 2 && !nbhdMatch;
 
   const reset = () => {
     setName("");
     setAddress("");
     setNeighborhood("");
-    setCustomNeighborhood("");
+    setNeighborhoodQuery("");
     setType("Café");
     setTypeQuery("");
     setVegan(false);
   };
 
   const submit = async () => {
-    const finalNeighborhood =
-      neighborhood === "__other__" ? customNeighborhood.trim() : neighborhood;
+    // Case-insensitive dedupe: reuse existing canonical name if it matches.
+    const typedNbhd = neighborhood.trim();
+    const canonical = allNeighborhoods.find(
+      (n) => n.toLowerCase() === typedNbhd.toLowerCase(),
+    );
+    const finalNeighborhood = canonical ?? typedNbhd;
 
     const parsed = schema.safeParse({
       name,
@@ -189,6 +214,7 @@ export function AddPlaceDialog({
     });
     qc.invalidateQueries({ queryKey: ["places"] });
     qc.invalidateQueries({ queryKey: ["place-types"] });
+    qc.invalidateQueries({ queryKey: ["neighborhoods"] });
     reset();
     onOpenChange(false);
   };
@@ -237,27 +263,102 @@ export function AddPlaceDialog({
 
           <div className="space-y-2">
             <Label>Neighborhood</Label>
-            <Select value={neighborhood} onValueChange={setNeighborhood}>
-              <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Pick a neighborhood" />
-              </SelectTrigger>
-              <SelectContent>
-                {neighborhoodOptions.map((n) => (
-                  <SelectItem key={n} value={n}>
-                    {n === "__other__" ? "Other…" : n}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {neighborhood === "__other__" && (
-              <Input
-                value={customNeighborhood}
-                maxLength={80}
-                onChange={(e) => setCustomNeighborhood(e.target.value)}
-                placeholder="Neighborhood name"
-                className="rounded-xl"
-              />
-            )}
+            <div className="flex items-start gap-3">
+              <div className="flex-1">
+                <Popover open={neighborhoodOpen} onOpenChange={setNeighborhoodOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={neighborhoodOpen}
+                      className="w-full justify-between rounded-xl font-normal"
+                    >
+                      {neighborhood || "Pick or add a neighborhood"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="p-0 w-[--radix-popover-trigger-width]"
+                    align="start"
+                  >
+                    <Command
+                      filter={(value, search) =>
+                        value.toLowerCase().includes(search.toLowerCase())
+                          ? 1
+                          : 0
+                      }
+                    >
+                      <CommandInput
+                        placeholder="Search or add a neighborhood..."
+                        value={neighborhoodQuery}
+                        onValueChange={setNeighborhoodQuery}
+                        maxLength={80}
+                      />
+                      <CommandList>
+                        <CommandEmpty>
+                          {trimmedNbhd
+                            ? "No matches — type to add a new one."
+                            : "Start typing..."}
+                        </CommandEmpty>
+                        <CommandGroup>
+                          {allNeighborhoods.map((n) => (
+                            <CommandItem
+                              key={n}
+                              value={n}
+                              onSelect={() => {
+                                setNeighborhood(n);
+                                setNeighborhoodQuery("");
+                                setNeighborhoodOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  neighborhood.toLowerCase() === n.toLowerCase()
+                                    ? "opacity-100"
+                                    : "opacity-0",
+                                )}
+                              />
+                              {n}
+                            </CommandItem>
+                          ))}
+                          {showCreateNbhd && (
+                            <CommandItem
+                              value={`__add__${trimmedNbhd}`}
+                              onSelect={() => {
+                                setNeighborhood(trimmedNbhd);
+                                setNeighborhoodQuery("");
+                                setNeighborhoodOpen(false);
+                                toast.success(
+                                  `Added "${trimmedNbhd}" — it'll be saved with your spot.`,
+                                );
+                              }}
+                              className="text-primary"
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add "{trimmedNbhd}"
+                            </CommandItem>
+                          )}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="relative shrink-0 hidden sm:block">
+                <div className="absolute -top-2 right-full mr-2 w-44 rounded-2xl rounded-br-sm bg-secondary px-3 py-2 text-xs text-secondary-foreground shadow-sm">
+                  Which SF block is this on?
+                </div>
+                <Mascot className="h-14 w-14" />
+              </div>
+            </div>
+            <div className="flex items-start gap-2 sm:hidden">
+              <Mascot className="h-10 w-10 shrink-0" />
+              <p className="rounded-2xl bg-secondary px-3 py-2 text-xs text-secondary-foreground">
+                Which SF block is this on?
+              </p>
+            </div>
           </div>
 
           <div className="space-y-2">
