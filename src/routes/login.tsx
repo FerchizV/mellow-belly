@@ -26,7 +26,7 @@ function LoginPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) navigate({ to: "/" });
+    if (!loading && user) navigate({ to: "/discover" });
   }, [user, loading, navigate]);
 
   const submit = async (e: React.FormEvent) => {
@@ -58,7 +58,8 @@ function LoginPage() {
         toast.error(error.message);
         return;
       }
-      navigate({ to: "/" });
+      sessionStorage.setItem("mb:justLoggedIn", "1");
+      navigate({ to: "/discover" });
     }
   };
 
