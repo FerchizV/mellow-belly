@@ -10,8 +10,10 @@ import {
 
 import appCss from "../styles.css?url";
 import { BottomNav } from "@/components/mellow/BottomNav";
+import { HelpButton } from "@/components/mellow/HelpButton";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
+
 
 function NotFoundComponent() {
   return (
@@ -134,7 +136,9 @@ function RootComponent() {
           <Outlet />
         </div>
         <BottomNav />
+        <HelpButton />
         <Toaster position="top-center" />
+
       </AuthProvider>
     </QueryClientProvider>
   );
