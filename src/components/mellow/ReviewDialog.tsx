@@ -38,18 +38,18 @@ export function ReviewDialog({
   const [flavor, setFlavor] = useState(4);
   const [comfort, setComfort] = useState(4);
   const [notes, setNotes] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const [isPublic, setIsPublic] = useState(true);
+  useEffect(() => {
     if (open) {
       setItem(existing?.item_ordered ?? "");
       setFlavor(existing?.flavor_rating ?? 4);
       setComfort(existing?.comfort_score ?? 4);
       setNotes(existing?.notes ?? "");
-      setIsPublic(existing?.is_public ?? false);
-    }
       setIsPublic(existing?.is_public ?? true);
+    }
+  }, [open, existing]);
 
   if (!place) return null;
 
