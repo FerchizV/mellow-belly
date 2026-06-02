@@ -197,7 +197,7 @@ function Discover() {
 
       {!(open || addOpen || previewOpen || neighborhoodOpen || typeOpen) && (
         <div className="mb-4">
-          <MapView places={filtered} onPick={onPick} />
+          <MapView places={filtered} onPick={onPick} focus={mapFocus} />
         </div>
       )}
 
