@@ -4,9 +4,11 @@ import type { Place } from "@/lib/types";
 export function MapView({
   places,
   onPick,
+  focus,
 }: {
   places: Place[];
   onPick: (p: Place) => void;
+  focus?: { lat: number; lng: number; key?: string } | null;
 }) {
   const [mod, setMod] = useState<any>(null);
 
@@ -31,11 +33,18 @@ export function MapView({
   const { MapContainer, TileLayer, Marker } = mod.rl;
   const L = mod.L;
 
+  const center: [number, number] = focus
+    ? [focus.lat, focus.lng]
+    : [37.7749, -122.4294];
+  const zoom = focus ? 16 : 12.5;
+  const mapKey = focus?.key ?? "default";
+
   return (
     <div className="h-[55vh] rounded-3xl overflow-hidden border border-border shadow-sm">
       <MapContainer
-        center={[37.7749, -122.4294]}
-        zoom={12.5}
+        key={mapKey}
+        center={center}
+        zoom={zoom}
         scrollWheelZoom
         style={{ height: "100%", width: "100%" }}
       >

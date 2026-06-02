@@ -73,10 +73,12 @@ export function AddPlaceDialog({
   open,
   onOpenChange,
   neighborhoods,
+  onCreated,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   neighborhoods: string[];
+  onCreated?: (place: Place) => void;
 }) {
   const qc = useQueryClient();
   const [name, setName] = useState("");
@@ -209,14 +211,18 @@ export function AddPlaceDialog({
       toast.error(error.message);
       return;
     }
-    toast.success("Spot added to the community guide!", {
-      icon: <img src={mascotSrc} alt="" className="h-8 w-8 object-contain" />,
-    });
     qc.invalidateQueries({ queryKey: ["places"] });
     qc.invalidateQueries({ queryKey: ["place-types"] });
     qc.invalidateQueries({ queryKey: ["neighborhoods"] });
     reset();
     onOpenChange(false);
+    if (data) {
+      onCreated?.(data as Place);
+    } else {
+      toast.success("Spot added to the community guide!", {
+        icon: <img src={mascotSrc} alt="" className="h-8 w-8 object-contain" />,
+      });
+    }
   };
 
   return (

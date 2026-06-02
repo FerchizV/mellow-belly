@@ -19,6 +19,7 @@ import { PlaceCard } from "@/components/mellow/PlaceCard";
 import { ReviewDialog } from "@/components/mellow/ReviewDialog";
 import { AddPlaceDialog } from "@/components/mellow/AddPlaceDialog";
 import { PlacePreview } from "@/components/mellow/PlacePreview";
+import { SpotAddedDialog } from "@/components/mellow/SpotAddedDialog";
 import { Mascot } from "@/components/mellow/Mascot";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -86,6 +87,11 @@ function Discover() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [neighborhoodOpen, setNeighborhoodOpen] = useState(false);
   const [typeOpen, setTypeOpen] = useState(false);
+  const [justAdded, setJustAdded] = useState<Place | null>(null);
+  const [spotAddedOpen, setSpotAddedOpen] = useState(false);
+  const [mapFocus, setMapFocus] = useState<
+    { lat: number; lng: number; key: string } | null
+  >(null);
 
   const { data: places = [] } = useQuery({
     queryKey: ["places"],
@@ -191,7 +197,7 @@ function Discover() {
 
       {!(open || addOpen || previewOpen || neighborhoodOpen || typeOpen) && (
         <div className="mb-4">
-          <MapView places={filtered} onPick={onPick} />
+          <MapView places={filtered} onPick={onPick} focus={mapFocus} />
         </div>
       )}
 
@@ -306,6 +312,32 @@ function Discover() {
         open={addOpen}
         onOpenChange={setAddOpen}
         neighborhoods={neighborhoods}
+        onCreated={(p) => {
+          setJustAdded(p);
+          setSpotAddedOpen(true);
+        }}
+      />
+      <SpotAddedDialog
+        open={spotAddedOpen}
+        onOpenChange={setSpotAddedOpen}
+        place={justAdded}
+        onAddBite={() => {
+          if (!justAdded) return;
+          setSpotAddedOpen(false);
+          setPicked(justAdded);
+          setOpen(true);
+        }}
+        onViewMap={() => {
+          if (!justAdded) return;
+          setSpotAddedOpen(false);
+          setMapFocus({
+            lat: justAdded.lat,
+            lng: justAdded.lng,
+            key: justAdded.id,
+          });
+          setPicked(justAdded);
+          setPreviewOpen(true);
+        }}
       />
     </div>
     </>
