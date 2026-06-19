@@ -1,1 +1,0 @@
-CREATE POLICY "places updatable by all" ON public.places FOR UPDATE USING (true) WITH CHECK (true);
