@@ -3,7 +3,7 @@
 
 -- 1. Places Table
 CREATE TABLE public.places (
-  id TEXT PRIMARY KEY,
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
   name TEXT,
   address TEXT,
   neighborhood TEXT,
@@ -24,7 +24,7 @@ CREATE TABLE public.profiles (
 
 -- 3. Reviews Table
 CREATE TABLE public.reviews (
-  id TEXT PRIMARY KEY,
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
   place_id TEXT REFERENCES public.places(id) ON DELETE CASCADE,
   user_id TEXT REFERENCES auth.users(id) ON DELETE SET NULL,
   item_ordered TEXT,
@@ -94,3 +94,21 @@ $$;
 -- Grant permissions for reviews feed
 REVOKE EXECUTE ON FUNCTION public.get_reviews_feed() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_reviews_feed() TO anon, authenticated;
+
+-- 5. Trigger to automatically create a profile when a new user signs up
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, display_name, created_at)
+  VALUES (
+    new.id::text,
+    COALESCE(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)),
+    new.created_at
+  );
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
