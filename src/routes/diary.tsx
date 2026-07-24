@@ -144,7 +144,7 @@ function Diary() {
         <img
           src={logo}
           alt="Mellow Belly"
-          className="h-10 w-auto -ml-1 mb-2"
+          className="h-32 w-auto -ml-1 mb-2"
         />
         <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold">
           My Diary

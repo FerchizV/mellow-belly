@@ -166,7 +166,7 @@ function Discover() {
             <img
               src={logo}
               alt="Mellow Belly"
-              className="h-24 w-auto -ml-1 mb-2"
+              className="h-32 w-auto -ml-1 mb-2"
             />
             <h1 className="text-4xl font-bold mt-1">All the yum,</h1>
             <h1 className="text-4xl font-bold text-primary -mt-1">

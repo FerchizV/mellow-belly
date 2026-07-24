@@ -73,7 +73,7 @@ function LoginPage() {
         <img
           src={logo}
           alt="Mellow Belly"
-          className="h-24 w-auto mx-auto"
+          className="h-32 w-auto mx-auto"
         />
       </Link>
       <Mascot className="h-28 w-auto mx-auto -mt-2 mb-2" />
