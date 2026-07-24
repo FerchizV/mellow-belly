@@ -360,7 +360,7 @@ export function AddPlaceDialog({
               </div>
               <div className="relative shrink-0 hidden sm:block">
                 <div className="absolute -top-2 right-full mr-2 w-44 rounded-2xl rounded-br-sm bg-secondary px-3 py-2 text-xs text-secondary-foreground shadow-sm">
-                  Which SF block is this on?
+                  Which Bay Area block is this on?
                 </div>
                 <Mascot className="h-14 w-14" />
               </div>
@@ -368,7 +368,7 @@ export function AddPlaceDialog({
             <div className="flex items-start gap-2 sm:hidden">
               <Mascot className="h-10 w-10 shrink-0" />
               <p className="rounded-2xl bg-secondary px-3 py-2 text-xs text-secondary-foreground">
-                Which SF block is this on?
+                Which Bay Area block is this on?
               </p>
             </div>
           </div>
