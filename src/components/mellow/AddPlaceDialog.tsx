@@ -53,11 +53,15 @@ const schema = z.object({
   is_totally_vegan: z.boolean(),
 });
 
+// Bounding box for the greater SF Bay Area (min_lon,min_lat,max_lon,max_lat),
+// used to keep geocoding results local instead of matching same-named streets elsewhere.
+const BAY_AREA_VIEWBOX = "-123.3,36.8,-121.2,38.6";
+
 async function geocode(address: string): Promise<{ lat: number; lng: number } | null> {
-  const q = encodeURIComponent(`${address}, San Francisco, CA`);
+  const q = encodeURIComponent(`${address}, CA`);
   try {
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${q}`,
+      `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${q}&viewbox=${BAY_AREA_VIEWBOX}&bounded=1`,
       { headers: { Accept: "application/json" } },
     );
     if (!res.ok) return null;
@@ -263,7 +267,7 @@ export function AddPlaceDialog({
               className="rounded-xl"
             />
             <p className="text-xs text-muted-foreground">
-              Street address in San Francisco — we'll pin it on the map.
+              Street address in the Bay Area — we'll pin it on the map.
             </p>
           </div>
 

@@ -102,7 +102,7 @@ export function HelpButton() {
                 <AccordionTrigger className="text-left">Our Mission</AccordionTrigger>
                 <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
                   Mellow Belly isn't just a restaurant finder—it's a community-driven
-                  playbook for precision eaters. We believe navigating San Francisco's
+                  playbook for precision eaters. We believe navigating the Bay Area's
                   incredible food scene shouldn't come with the stress of hidden
                   ingredients or digestive discomfort. Whether you are avoiding dairy
                   for severe health reasons or tracking everyday wellness, this is
@@ -115,7 +115,7 @@ export function HelpButton() {
                 <AccordionContent className="space-y-3 text-sm leading-relaxed text-muted-foreground">
                   <p>
                     <span className="font-semibold text-foreground">📍 Discover:</span>{" "}
-                    Explore a map of San Francisco spots with reliable dairy-free
+                    Explore a map of Bay Area spots with reliable dairy-free
                     options. Click any card to check out community logs and your menu
                     item history.
                   </p>

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Your personalized guide to a happy, dairy-free belly in San Francisco.",
+          "Your personalized guide to a happy, dairy-free belly in the Bay Area.",
       },
     ],
   }),

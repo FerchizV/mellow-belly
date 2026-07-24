@@ -35,7 +35,7 @@ export const Route = createFileRoute("/discover")({
       {
         name: "description",
         content:
-          "All the yum, none of the bloat — find dairy-free spots across San Francisco.",
+          "All the yum, none of the bloat — find dairy-free spots across the Bay Area.",
       },
     ],
   }),
@@ -173,7 +173,7 @@ function Discover() {
               none of the bloat.
             </h1>
             <p className="text-muted-foreground mt-3 text-sm">
-              Your dairy-free food guide for San Francisco.
+              Your dairy-free food guide for the Bay Area.
             </p>
           </div>
           {user ? (

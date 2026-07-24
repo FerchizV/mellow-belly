@@ -26,7 +26,7 @@ CREATE TABLE public.profiles (
 CREATE TABLE public.reviews (
   id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
   place_id TEXT REFERENCES public.places(id) ON DELETE CASCADE,
-  user_id TEXT REFERENCES auth.users(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   item_ordered TEXT,
   flavor_rating BIGINT,
   comfort_score BIGINT,
@@ -42,6 +42,7 @@ ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 
 -- Policies for Places
 CREATE POLICY "places readable by all" ON public.places FOR SELECT USING (true);
+CREATE POLICY "auth users insert places" ON public.places FOR INSERT TO authenticated WITH CHECK (auth.uid() IS NOT NULL);
 CREATE POLICY "auth users update places" ON public.places FOR UPDATE TO authenticated USING (auth.uid() IS NOT NULL);
 
 -- Policies for Profiles
@@ -50,10 +51,10 @@ CREATE POLICY "users insert own profile" ON public.profiles FOR INSERT WITH CHEC
 CREATE POLICY "users update own profile" ON public.profiles FOR UPDATE USING (auth.uid()::text = id);
 
 -- Policies for Reviews
-CREATE POLICY "owner reads own reviews" ON public.reviews FOR SELECT USING (auth.uid()::text = user_id);
-CREATE POLICY "authed user inserts own review" ON public.reviews FOR INSERT WITH CHECK (auth.uid()::text = user_id);
-CREATE POLICY "owner updates own review" ON public.reviews FOR UPDATE USING (auth.uid()::text = user_id);
-CREATE POLICY "owner deletes own review" ON public.reviews FOR DELETE USING (auth.uid()::text = user_id);
+CREATE POLICY "owner reads own reviews" ON public.reviews FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "authed user inserts own review" ON public.reviews FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "owner updates own review" ON public.reviews FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "owner deletes own review" ON public.reviews FOR DELETE USING (auth.uid() = user_id);
 
 -- 4. Function: get_reviews_feed
 CREATE OR REPLACE FUNCTION public.get_reviews_feed()
