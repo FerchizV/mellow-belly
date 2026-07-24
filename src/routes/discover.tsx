@@ -335,8 +335,6 @@ function Discover() {
             lng: justAdded.lng,
             key: justAdded.id,
           });
-          setPicked(justAdded);
-          setPreviewOpen(true);
         }}
       />
     </div>
